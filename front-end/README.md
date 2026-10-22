@@ -161,7 +161,7 @@ npm run dev
 Backend tu dong tao/cap nhat admin khi khoi dong:
 
 ```text
-username: quangkhaiadmin
+username: kuroisme
 password: 123456
 ```
 

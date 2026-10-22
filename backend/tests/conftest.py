@@ -19,7 +19,7 @@ os.environ["HM_RUNS_DIR"] = str(_TMP / "runs")
 
 from fastapi.testclient import TestClient  # noqa: E402
 
-import main  # noqa: E402  (tạo bảng + admin mặc định quangkhaiadmin/123456)
+import main  # noqa: E402  (tạo bảng + admin mặc định kuroisme/123456)
 from core.security import get_password_hash  # noqa: E402
 from database import SessionLocal  # noqa: E402
 from models.product_model import Product  # noqa: E402
@@ -53,7 +53,7 @@ def tokens(client):
     return {
         "buyer": {"Authorization": f"Bearer {login('t_buyer')}"},
         "ds": {"Authorization": f"Bearer {login('t_ds')}"},
-        "admin": {"Authorization": f"Bearer {login('quangkhaiadmin')}"},
+        "admin": {"Authorization": f"Bearer {login('kuroisme')}"},
     }
 
 

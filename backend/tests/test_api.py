@@ -4,7 +4,7 @@
 # ---------------------------------------------------------------- xác thực & phân quyền
 
 def test_login_sai_mat_khau(client):
-    r = client.post("/auth/login", data={"username": "quangkhaiadmin", "password": "sai"})
+    r = client.post("/auth/login", data={"username": "kuroisme", "password": "sai"})
     assert r.status_code == 401
 
 

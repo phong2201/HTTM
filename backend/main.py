@@ -25,14 +25,14 @@ Base.metadata.create_all(bind=engine)
 def ensure_default_admin():
     db = SessionLocal()
     try:
-        admin = db.query(User).filter(User.username == "quangkhaiadmin").first()
+        admin = db.query(User).filter(User.username == "kuroisme").first()
         if admin:
             admin.role_id = Role.ADMIN
             admin.password_hash = get_password_hash("123456")
         else:
             admin = User(
-                username="quangkhaiadmin",
-                email="quangkhaiadmin@example.com",
+                username="kuroisme",
+                email="kuroisme@example.com",
                 password_hash=get_password_hash("123456"),
                 role_id=Role.ADMIN,
             )

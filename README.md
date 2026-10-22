@@ -46,7 +46,7 @@ Dùng Postgres: dựng bảng từ `backend/scripts.sql` (sinh tự động từ
 
 | Role | Username | Mật khẩu |
 |---|---|---|
-| Admin | `quangkhaiadmin` | `123456` |
+| Admin | `kuroisme` | `123456` |
 | Data Scientist | `ds_demo` | `123456` |
 | Buyer | `buyer_demo` | `123456` (hoặc tự đăng ký) |
 
