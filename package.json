@@ -1,0 +1,18 @@
+{
+  "name": "hub-intelligent-system",
+  "private": true,
+  "description": "Chạy chung frontend (Vite) và backend (FastAPI) từ thư mục gốc",
+  "scripts": {
+    "dev": "concurrently -k -n BE,FE -c red,magenta \"npm:dev:be\" \"npm:dev:fe\"",
+    "dev:fe": "npm --prefix front-end run dev",
+    "dev:be": "cd backend && python -m uvicorn main:app --reload --port 8000",
+    "build": "npm --prefix front-end run build",
+    "typecheck": "npm --prefix front-end run typecheck",
+    "setup": "npm install && npm --prefix front-end install && conda env create -f environment.yml",
+    "setup:update": "conda env update -f environment.yml --prune",
+    "test": "cd backend && python -m pytest -q tests"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

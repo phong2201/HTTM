@@ -1,0 +1,157 @@
+@custom-variant dark (&:is(.dark *));
+
+/* HUB design tokens — xem HUB_UI_SPEC.md mục 1 */
+:root {
+  --font-size: 16px;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* shadcn */
+  --background: #f6f2f3;
+  --foreground: #141414;
+  --card: #ffffff;
+  --card-foreground: #141414;
+  --popover: #ffffff;
+  --popover-foreground: #141414;
+  --primary: #e8112d;
+  --primary-foreground: #ffffff;
+  --secondary: #ffe3e8;
+  --secondary-foreground: #e8112d;
+  --muted: #f6f2f3;
+  --muted-foreground: #6b6b6b;
+  --accent: #ffe3e8;
+  --accent-foreground: #e8112d;
+  --destructive: #b42318;
+  --destructive-foreground: #ffffff;
+  --border: #f0e6e8;
+  --input: #dccfd2;
+  --input-background: #ffffff;
+  --switch-background: #dccfd2;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #e8112d;
+  --radius: 0.625rem;
+
+  /* HUB */
+  --hub-canvas: #fff3f5;
+  --hub-img-ph: #f2f0f0;
+  --hub-faint: #9e9a9b;
+  --hub-border-strong: #dccfd2;
+  --hub-success: #2e7d4f;
+  --hub-success-soft: #e4f2e9;
+  --hub-warning: #a86a12;
+  --hub-warning-soft: #fbf1de;
+  --hub-danger: #b42318;
+  --hub-danger-soft: #fde8e6;
+  --hub-info: #3b5ba9;
+  --hub-info-soft: #e5eaf6;
+  --hub-shadow-card: 0 1px 4px rgba(0, 0, 0, 0.07);
+
+  --chart-1: #ff7a3d;
+  --chart-2: #ff5e7e;
+  --chart-3: #ffa62b;
+  --chart-4: #ff7eb3;
+  --chart-5: #e8112d;
+}
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-canvas: var(--hub-canvas);
+  --color-img-ph: var(--hub-img-ph);
+  --color-faint: var(--hub-faint);
+  --color-border-strong: var(--hub-border-strong);
+  --color-success: var(--hub-success);
+  --color-success-soft: var(--hub-success-soft);
+  --color-warning: var(--hub-warning);
+  --color-warning-soft: var(--hub-warning-soft);
+  --color-danger: var(--hub-danger);
+  --color-danger-soft: var(--hub-danger-soft);
+  --color-info: var(--hub-info);
+  --color-info-soft: var(--hub-info-soft);
+  --shadow-card: var(--hub-shadow-card);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    font-size: var(--font-size);
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-size: 15px;
+  }
+
+  h1, h2, h3, h4 {
+    line-height: 1.3;
+  }
+
+  label {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  /* Tailwind v4 bỏ cursor: pointer mặc định của nút → trả lại con trỏ bàn tay cho mọi thứ bấm được */
+  a[href],
+  button,
+  select,
+  summary,
+  label[for],
+  label:has(input[type='radio']),
+  label:has(input[type='checkbox']),
+  label:has([role='switch']),
+  [role='button'],
+  [role='tab'],
+  [role='radio'],
+  [role='menuitem'],
+  [role='option'],
+  [role='switch'],
+  input[type='checkbox'],
+  input[type='radio'],
+  input[type='file'],
+  input[type='submit'] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled,
+  input:disabled,
+  [aria-disabled='true'],
+  [data-disabled] {
+    cursor: not-allowed;
+  }
+}
