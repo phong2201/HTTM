@@ -126,7 +126,67 @@ luồng đặt hàng & tính tiền, gợi ý theo hành vi, doanh số loại �
 - Random Forest của scikit-learn chạy CPU; Kaggle cấp 4 nhân → một lần chạy toàn bộ khách mất ~20–30 phút (chưa kể thời gian Kaggle xếp hàng).
 - Không có ảnh cho ~0,2% sản phẩm (dataset thiếu ảnh) → web hiển thị ô thay thế.
 
-## 7. Đóng góp & sử dụng AI
+## 7. Cấu trúc thư mục
 
-- **Phân công thành viên:** _(nhóm điền)_
-- **Khai báo sử dụng Generative AI:** _(nhóm điền — dự án có dùng Claude Code (Anthropic) hỗ trợ viết mã frontend/backend/pipeline, kiểm thử và tài liệu; nhóm ghi rõ phạm vi và phần tự thực hiện)_
+```
+HTTM/
+├── package.json              # Lệnh chung: setup, dev, test, build (chạy từ thư mục gốc)
+├── environment.yml           # Env conda "hub" cho backend + pipeline
+├── HUB_UI_SPEC.md            # Đặc tả giao diện theo từng role
+│
+├── front-end/                # React + Vite + TypeScript
+│   └── src/
+│       ├── main.tsx          # Điểm vào
+│       ├── app/              # App.tsx, routes.tsx (định tuyến theo role), components/ui (thư viện UI)
+│       ├── components/       # common (thẻ, bảng, trạng thái…), layout (Header, CartDrawer, RequireRole), product
+│       ├── pages/
+│       │   ├── auth/         # Đăng nhập / đăng ký
+│       │   ├── buyer/        # Trang chủ (gợi ý), sản phẩm, chi tiết, thanh toán, đơn hàng, wishlist
+│       │   ├── admin/        # Dashboard, quản lý user / sản phẩm / đơn
+│       │   └── data-science/ # EDA, Lịch chạy, Model metrics, Phân tích lỗi
+│       ├── context/          # AuthContext (phiên đăng nhập), ShopContext (giỏ, wishlist)
+│       ├── services/api.ts   # Gọi API backend
+│       └── config/roles.ts   # Định nghĩa role và quyền truy cập
+│
+├── backend/                  # FastAPI + SQLAlchemy
+│   ├── main.py               # Khởi tạo app, đăng ký router, phục vụ ảnh tĩnh /images
+│   ├── database.py           # Kết nối DB
+│   ├── core/                 # config.py (biến môi trường, hệ số giá), security.py (JWT, băm mật khẩu)
+│   ├── dependencies/         # auth_deps.py: lấy user hiện tại, kiểm tra role
+│   ├── routers/              # Định nghĩa endpoint: auth, product, cart, order, wishlist,
+│   │                         #   feedback, recommendation, dashboard, user, hm_ai (Train AI / import run)
+│   ├── services/             # Nghiệp vụ; hm_pipeline_service.py điều phối pipeline H&M,
+│   │                         #   session_rerank.py sắp xếp lại gợi ý theo hành vi trong phiên
+│   ├── repositories/         # Truy vấn DB theo từng bảng
+│   ├── models/               # Model SQLAlchemy (bảng)
+│   ├── schemas/              # Schema Pydantic cho request / response
+│   ├── scripts/              # migrate_to_hm_schema.py, seed_demo_activity.py, dump_schema.py
+│   ├── scripts.sql           # Lược đồ DB sinh từ model (dùng cho Postgres)
+│   ├── tests/                # pytest: test_api.py, test_pipeline.py
+│   └── recommendation_system.db  # SQLite mặc định
+│
+├── data_scientist/
+│   ├── hm_pipeline/          # hub_pipeline.py: pipeline Random Forest (Kaggle / local) + README
+│   ├── images/hm/            # Ảnh sản phẩm H&M (không đưa lên git, sinh lại khi import run)
+│   ├── runs/<run_id>/        # Kết quả mỗi lần chạy (không đưa lên git)
+│   └── *_1 … *_4_6.py        # Pipeline GNN cũ (dataset Myntra) — không còn dùng, dữ liệu đã xóa
+│
+└── data/hm/                  # (Tùy chọn) CSV H&M khi chạy pipeline local (không đưa lên git)
+```
+
+## 8. Quy trình vận hành
+
+1. **Cài đặt & khởi động** — `npm run setup` (lần đầu) → `conda activate hub` → `npm run dev`.
+2. **Huấn luyện** — đăng nhập **Data Scientist** → **Lịch chạy** → chọn nơi chạy (Kaggle / local), phạm vi dữ liệu,
+   tham số Random Forest → **Train AI**. Hoặc để lịch tự chạy lúc 02:00 mỗi ngày.
+3. **Chạy pipeline** — backend đẩy `hub_pipeline.py` lên Kaggle (hoặc chạy local với `data/hm/`), theo dõi
+   `progress.json` qua 6 bước: chọn subset & chia theo thời gian → sinh ứng viên → tạo feature → huấn luyện Random Forest
+   → đánh giá vs baseline → ghi bảng Recommendations.
+4. **Nạp kết quả** — kết quả tải về `data_scientist/runs/<run_id>/`; backend nạp catalog + ảnh vào `products`,
+   gợi ý vào `user_recommendations`, metrics / phân tích lỗi / xu hướng cho các màn Data Science.
+   Nếu MAP@12 thấp hơn baseline, Data Scientist chọn **Vẫn ghi đè** hoặc **Giữ bản cũ**.
+5. **Phục vụ gợi ý** — Buyer mở web → `/predict` đọc gợi ý tính sẵn → sắp xếp lại theo hành vi trong phiên
+   (xem, wishlist, giỏ, mua, đánh giá).
+6. **Vòng phản hồi** — đơn mua trên web được gửi kèm lần chạy kế tiếp để cập nhật gợi ý; Admin theo dõi doanh số
+   và đơn hàng ở Dashboard.
+7. **Kiểm thử** — `npm test` trước khi commit.
