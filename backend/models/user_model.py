@@ -6,7 +6,6 @@ from database import Base
 from enum import Enum as PyEnum
 
 class Role(int, PyEnum):
-    SELLER = 1
     BUYER = 2
     ADMIN = 3
     DATA_SCIENTIST = 4

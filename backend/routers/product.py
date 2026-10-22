@@ -6,7 +6,7 @@ from services.hm_pipeline_service import pipeline
 from database import get_db
 from schemas.product_schema import ProductResponse, ProductCreate, ProductUpdate, ProductQuantityUpdate
 from schemas.base_schema import IMessageResponse
-from dependencies.auth_deps import get_current_user, require_admin, require_seller
+from dependencies.auth_deps import get_current_user, require_admin
 from services import product_service
 from typing import List
 from uuid import UUID

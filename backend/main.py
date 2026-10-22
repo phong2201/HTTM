@@ -10,8 +10,7 @@ from database import SessionLocal
 from models.user_model import User, Role
 from core.security import get_password_hash
 # Import router
-# from routers import model_ai  # Temporarily commented to avoid installing all ML dependencies
-from routers import auth, product, wishlist, cart, order, dashboard, user, model_ai
+from routers import auth, product, wishlist, cart, order, dashboard, user
 from routers import recommendation
 from routers import feedback
 from routers import hm_ai
@@ -74,7 +73,6 @@ app.add_middleware(
 
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(hm_ai.router)
-app.include_router(model_ai.router, prefix="/ai", tags=["AI Pipeline (GNN cũ)"])
 app.include_router(product.router, prefix="/products", tags=["Products"])
 app.include_router(wishlist.router, prefix="/wishlist", tags=["Wishlist"])
 app.include_router(cart.router, prefix="/cart", tags=["Cart"])
@@ -89,4 +87,4 @@ async def root():
     return {"message": "Welcome to the Intelligent System API!"}
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -41,5 +41,4 @@ chạy notebook trực tiếp trên giao diện Kaggle: tải output về, giả
 | `reports/original`, `reports/normalized` | Ảnh EDA (màn Data Science) |
 | `progress.json` | Tiến trình 6 bước |
 
-Khi nạp, sản phẩm của dataset cũ (Myntra) bị **ẩn** (`is_active = false`), không bị xóa vì đơn hàng cũ còn tham chiếu.
 Run có MAP@12 thấp hơn baseline sẽ **không** tự ghi đè Recommendations — chọn "Vẫn ghi đè" hoặc "Giữ bản cũ" ở màn Lịch chạy.

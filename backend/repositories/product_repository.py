@@ -14,7 +14,7 @@ def get_product_by_id(db: Session, product_id: UUID):
     return db.query(Product).filter(Product.id == product_id).first()
 
 def get_all_products(db: Session, skip: int = 0, limit: int = 100):
-    # Sản phẩm bị ẩn (vd dataset cũ sau khi nạp H&M) không hiện trong danh sách
+    # Sản phẩm bị ẩn (is_active = false, vd Admin ngừng bán) không hiện trong danh sách
     return db.query(Product).filter(Product.is_active.is_(True)).offset(skip).limit(limit).all()
 
 def update_product(db: Session, product_id: UUID, product_in: ProductUpdate):

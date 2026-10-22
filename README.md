@@ -19,7 +19,7 @@
 Yêu cầu: Node.js ≥ 18, Anaconda/Miniconda.
 
 ```powershell
-# Lần đầu: cài thư viện Node + tạo env conda "hub" (Python 3.11, PyTorch, scikit-learn, FastAPI…)
+# Lần đầu: cài thư viện Node + tạo env conda "hub" (Python 3.11, pandas, scikit-learn, FastAPI…)
 npm run setup
 
 # Mỗi lần chạy: backend (http://127.0.0.1:8000) + frontend (http://localhost:5173) song song
@@ -160,7 +160,7 @@ HTTM/
 │   ├── repositories/         # Truy vấn DB theo từng bảng
 │   ├── models/               # Model SQLAlchemy (bảng)
 │   ├── schemas/              # Schema Pydantic cho request / response
-│   ├── scripts/              # migrate_to_hm_schema.py, seed_demo_activity.py, dump_schema.py
+│   ├── scripts/              # seed_demo_activity.py (sinh hoạt động mẫu), dump_schema.py (sinh scripts.sql)
 │   ├── scripts.sql           # Lược đồ DB sinh từ model (dùng cho Postgres)
 │   ├── tests/                # pytest: test_api.py, test_pipeline.py
 │   └── recommendation_system.db  # SQLite mặc định
@@ -168,8 +168,7 @@ HTTM/
 ├── data_scientist/
 │   ├── hm_pipeline/          # hub_pipeline.py: pipeline Random Forest (Kaggle / local) + README
 │   ├── images/hm/            # Ảnh sản phẩm H&M (không đưa lên git, sinh lại khi import run)
-│   ├── runs/<run_id>/        # Kết quả mỗi lần chạy (không đưa lên git)
-│   └── *_1 … *_4_6.py        # Pipeline GNN cũ (dataset Myntra) — không còn dùng, dữ liệu đã xóa
+│   └── runs/<run_id>/        # Kết quả mỗi lần chạy (không đưa lên git)
 │
 └── data/hm/                  # (Tùy chọn) CSV H&M khi chạy pipeline local (không đưa lên git)
 ```

@@ -225,14 +225,15 @@ test.json
 /backend/seed.py
 # Node
 node_modules/
+front-end/.vite/
+front-end/dist/
+# "lib/" của Python ở trên chặn nhầm thư mục mã nguồn frontend
+!front-end/src/lib/
 
 # Dữ liệu H&M & kết quả pipeline (nặng, sinh lại được)
 data/
 data_scientist/runs/
 data_scientist/images/hm/
-
-# Bản sao lưu DB do scripts/migrate_to_hm_schema.py tạo
-backend/*.backup_*.db
 
 # Danh sách dòng do scripts/seed_demo_activity.py tạo (theo từng DB)
 backend/scripts/.demo_seed.json

@@ -7,13 +7,6 @@ import { Notice } from '@/components/common/Notice';
 import { apiService, type Insights } from '@/services/api';
 import { errorMessage } from '@/lib/format';
 
-/** Bộ ảnh dự phòng đi kèm repo (pipeline GNN cũ), dùng khi chưa có run pipeline H&M. */
-const REPORT_VERSION = 'v_20260506_193346';
-
-// Glob phải là literal → ghi rõ version trong pattern.
-const originalImages = import.meta.glob('../../../../data_scientist/reports/v_20260506_193346/original/*.png', { eager: true, import: 'default' }) as Record<string, string>;
-const normalizedImages = import.meta.glob('../../../../data_scientist/reports/v_20260506_193346/normalized/*.png', { eager: true, import: 'default' }) as Record<string, string>;
-
 interface Figure { title: string; src: string }
 
 /** "3_1_2_missing_value_analysis.png" → "3.1.2 · Missing value analysis", sắp theo số mục. */
@@ -30,7 +23,7 @@ function toFigures(images: Record<string, string>): Figure[] {
     .map(({ title, src }) => ({ title, src }));
 }
 
-const BUNDLED = { source: REPORT_VERSION, original: toFigures(originalImages), normalized: toFigures(normalizedImages) };
+const EMPTY = { source: 'chưa có run', original: [] as Figure[], normalized: [] as Figure[] };
 
 const fromApi = (items: Array<{ file: string; url: string }>) => toFigures(Object.fromEntries(items.map((i) => [i.file, i.url])));
 
@@ -38,7 +31,7 @@ const fromApi = (items: Array<{ file: string; url: string }>) => toFigures(Objec
 export function DataSciencePage() {
   const [training, setTraining] = useState(false);
   const [notice, setNotice] = useState<{ tone: 'success' | 'destructive'; text: string } | null>(null);
-  const [reports, setReports] = useState(BUNDLED);
+  const [reports, setReports] = useState(EMPTY);
   const [insights, setInsights] = useState<Insights | null>(null);
 
   useEffect(() => {
@@ -48,7 +41,7 @@ export function DataSciencePage() {
           setReports({ source: data.run_id, original: fromApi(data.original), normalized: fromApi(data.normalized) });
         }
       })
-      .catch(() => undefined); // giữ bộ ảnh đi kèm repo
+      .catch(() => undefined); // chưa có run → hiện trạng thái trống
     apiService.getInsights().then(setInsights).catch(() => setInsights(null));
   }, []);
 
