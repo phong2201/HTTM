@@ -77,7 +77,34 @@ export function ModelMetricsPage() {
       {error && <Notice tone="warning" className="mb-5">Không lấy được metrics: {error}. Các số hiển thị “{MISSING}”.</Notice>}
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {KPIS.map(({ key, label, icon }, i) => <StatCard key={key} index={i} icon={icon} label={label} value={formatMetric(metrics[key])} />)}
+        {KPIS.map(({ key, label, icon }, i) => {
+          let badge: string | undefined;
+          let badgeTone: 'positive' | 'neutral' | 'info' = 'positive';
+          if (key === 'map12' && metrics.map12 && data?.baselines?.repurchase?.map12) {
+            const diff = ((metrics.map12 / data.baselines.repurchase.map12 - 1) * 100).toFixed(1);
+            badge = `+${diff}% vs BL2`;
+          } else if (key === 'ndcg12' && metrics.ndcg12 && data?.baselines?.repurchase?.ndcg12) {
+            const diff = ((metrics.ndcg12 / data.baselines.repurchase.ndcg12 - 1) * 100).toFixed(1);
+            badge = `+${diff}% vs BL2`;
+          } else if (key === 'recall12' && metrics.recall12) {
+            badge = 'Top 12';
+            badgeTone = 'info';
+          } else if (key === 'candidate_recall' && metrics.candidate_recall) {
+            badge = '100 cand';
+            badgeTone = 'neutral';
+          }
+          return (
+            <StatCard
+              key={key}
+              index={i}
+              icon={icon}
+              label={label}
+              value={formatMetric(metrics[key])}
+              badge={badge}
+              badgeTone={badgeTone}
+            />
+          );
+        })}
       </div>
 
       <div className="mb-6 grid gap-6 lg:grid-cols-2">

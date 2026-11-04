@@ -63,7 +63,7 @@ export function DataSciencePage() {
       <PageHeader
         icon={Brain}
         title="Data Science & Analytics"
-        description={<>EDA & tiền xử lý dữ liệu · báo cáo <code className="text-[13px]">{reports.source}</code></>}
+        description={<>EDA & tiền xử lý dữ liệu · báo cáo <code className="rounded bg-accent px-1.5 py-0.5 text-[13px] font-semibold text-primary">{reports.source}</code></>}
         actions={<Button onClick={triggerTraining} disabled={training}><Play /> {training ? 'Đang kích hoạt...' : 'Train AI'}</Button>}
       />
       {notice && <Notice tone={notice.tone} className="mb-5">{notice.text}</Notice>}
@@ -79,17 +79,21 @@ export function DataSciencePage() {
           { icon: TrendingUp, title: 'Xu hướng sản phẩm', items: insights?.trend },
           { icon: Target, title: 'Tối ưu hóa gợi ý', items: insights?.optimization },
         ].map(({ icon: Icon, title, items }) => (
-          <Panel key={title}>
-            <Icon className="mb-3 size-8 text-primary" />
-            <h3 className="mb-2 font-bold">{title}</h3>
+          <Panel key={title} className="relative overflow-hidden border-l-4 border-l-primary">
+            <div className="mb-3 flex items-center gap-3">
+              <span className="flex size-10 items-center justify-center rounded-xl bg-accent text-primary">
+                <Icon className="size-5" />
+              </span>
+              <h3 className="text-lg font-bold tracking-tight">{title}</h3>
+            </div>
             {items?.length ? (
-              <ul className="list-disc space-y-1.5 pl-5 text-sm leading-6 text-foreground/80 marker:text-primary">
+              <ul className="list-disc space-y-2 pl-5 text-sm leading-6 text-foreground/85 marker:text-primary">
                 {items.map((item) => <li key={item}>{item}</li>)}
               </ul>
             ) : (
               <p className="text-sm text-muted-foreground">Chưa có kết quả pipeline — bấm Train AI.</p>
             )}
-            {insights?.run_id && <p className="mt-3 text-xs text-faint">Nguồn: {insights.run_id}</p>}
+            {insights?.run_id && <p className="mt-4 text-xs font-medium text-faint">Nguồn: {insights.run_id}</p>}
           </Panel>
         ))}
       </div>
@@ -108,12 +112,23 @@ function FigurePanel({ icon, title, figures }: { icon: typeof Brain; title: stri
       ) : (
         <div className="space-y-4">
           {figures.map((figure) => (
-            <figure key={figure.src} className="overflow-hidden rounded-lg border border-border">
-              <figcaption className="border-b border-border bg-card px-3 py-2 text-[13px] font-semibold">{figure.title}</figcaption>
+            <figure
+              key={figure.src}
+              className="group overflow-hidden rounded-xl border border-border/90 bg-card transition-all duration-200 hover:border-primary/30 hover:shadow-md"
+            >
+              <figcaption className="flex items-center justify-between border-b border-border bg-muted/50 px-3.5 py-2 text-[13px] font-bold tracking-tight">
+                <span>{figure.title}</span>
+              </figcaption>
               {failed[figure.src] ? (
                 <div className="flex min-h-40 items-center justify-center bg-img-ph p-4 text-sm text-muted-foreground">Không tải được ảnh</div>
               ) : (
-                <img src={figure.src} alt={figure.title} loading="lazy" className="block h-auto w-full" onError={() => setFailed((prev) => ({ ...prev, [figure.src]: true }))} />
+                <img
+                  src={figure.src}
+                  alt={figure.title}
+                  loading="lazy"
+                  className="block h-auto w-full transition-transform duration-300 group-hover:scale-[1.01]"
+                  onError={() => setFailed((prev) => ({ ...prev, [figure.src]: true }))}
+                />
               )}
             </figure>
           ))}

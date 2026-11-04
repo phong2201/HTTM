@@ -11,6 +11,7 @@
 | Dữ liệu | [H&M Personalized Fashion Recommendations](https://www.kaggle.com/competitions/h-and-m-personalized-fashion-recommendations/data) — 31,8 triệu giao dịch, 105.542 sản phẩm, 1,37 triệu khách (2018-09-20 → 2020-09-22). **Không dùng dữ liệu mô phỏng.** |
 | Actor | **Buyer** (mua sắm, nhận gợi ý), **Admin** (quản lý user/sản phẩm/đơn, dashboard), **Data Scientist** (EDA, cấu hình & huấn luyện, đánh giá, phân tích lỗi, lịch cập nhật) |
 | Thành phần | `front-end/` React + Vite · `backend/` FastAPI + SQLAlchemy · `data_scientist/hm_pipeline/` pipeline ML chạy trên Kaggle hoặc local |
+| Tài liệu nộp bài | 📄 **[Báo cáo Học thuật Chi tiết (REPORT.md)](REPORT.md)** · 📊 **[Slide Thuyết trình & Kịch bản Demo (SLIDES.md)](SLIDES.md)** · 🎨 **[Đặc tả UI (HUB_UI_SPEC.md)](HUB_UI_SPEC.md)** |
 
 ---
 

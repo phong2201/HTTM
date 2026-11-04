@@ -97,11 +97,32 @@ export function ErrorAnalysisPage() {
               <thead className={tableHead}><tr><th>Nhóm</th><th>Số khách</th><th>MAP@12</th><th>Recall@12</th></tr></thead>
               <tbody className={tableBody}>
                 {customerRows.map((r) => (
-                  <tr key={r.segment}>
-                    <td className="font-semibold">{r.segment}</td>
+                  <tr key={r.segment} className="hover:bg-muted/50 transition-colors">
+                    <td className="font-semibold flex items-center gap-2">
+                      <span className={`inline-block size-2 rounded-full ${r.segment === 'cold start' ? 'bg-[#A86A12]' : 'bg-[#2E7D4F]'}`} />
+                      {r.segment}
+                    </td>
                     <td className="tabular-nums">{formatNumber('customers' in r ? r.customers : null)}</td>
-                    <td className="tabular-nums">{formatMetric('map12' in r ? r.map12 : null)}</td>
-                    <td className="tabular-nums">{formatMetric('recall12' in r ? r.recall12 : null)}</td>
+                    <td className="tabular-nums">
+                      <div className="flex items-center gap-2">
+                        <span className="min-w-12 font-medium">{formatMetric('map12' in r ? r.map12 : null)}</span>
+                        {'map12' in r && r.map12 != null && (
+                          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-border">
+                            <div className="h-full rounded-full bg-gradient-to-r from-[#FF7A3D] to-[#E8112D]" style={{ width: `${Math.min(100, (r.map12 / 0.05) * 100)}%` }} />
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="tabular-nums">
+                      <div className="flex items-center gap-2">
+                        <span className="min-w-12 font-medium">{formatMetric('recall12' in r ? r.recall12 : null)}</span>
+                        {'recall12' in r && r.recall12 != null && (
+                          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-border">
+                            <div className="h-full rounded-full bg-gradient-to-r from-[#FF9F5A] to-[#FF5E7E]" style={{ width: `${Math.min(100, (r.recall12 / 0.1) * 100)}%` }} />
+                          </div>
+                        )}
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
