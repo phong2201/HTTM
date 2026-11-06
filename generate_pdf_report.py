@@ -9,6 +9,36 @@ from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, KeepTogether, Preformatted, Flowable, Image as RLImage
 )
 from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+
+# Register TrueType Fonts for Publication-Grade Typography and Math Symbols
+pdfmetrics.registerFont(TTFont('Arial', r'C:\Windows\Fonts\arial.ttf'))
+pdfmetrics.registerFont(TTFont('Arial-Bold', r'C:\Windows\Fonts\arialbd.ttf'))
+pdfmetrics.registerFont(TTFont('Arial-Italic', r'C:\Windows\Fonts\ariali.ttf'))
+pdfmetrics.registerFont(TTFont('SegoeUISymbol', r'C:\Windows\Fonts\seguisym.ttf'))
+
+# Publication Math Notation Constants (arXiv/LaTeX grade)
+ASSIGN = '<font name="SegoeUISymbol">\u2190</font>'
+IN = '<font name="SegoeUISymbol">\u2208</font>'
+NOTIN = '<font name="SegoeUISymbol">\u2209</font>'
+EMPTY = '<font name="SegoeUISymbol">\u2205</font>'
+UNION = '<font name="SegoeUISymbol">\u222a</font>'
+INTERSECT = '<font name="SegoeUISymbol">\u2229</font>'
+SETMINUS = '<font name="SegoeUISymbol">\u2216</font>'
+EXISTS = '<font name="SegoeUISymbol">\u2203</font>'
+FORALL = '<font name="SegoeUISymbol">\u2200</font>'
+AND = '<font name="SegoeUISymbol">\u2227</font>'
+OR = '<font name="SegoeUISymbol">\u2228</font>'
+TIMES = '<font name="SegoeUISymbol">\u00d7</font>'
+LE = '<font name="SegoeUISymbol">\u2264</font>'
+GE = '<font name="SegoeUISymbol">\u2265</font>'
+SUM = '<font name="SegoeUISymbol">\u2211</font>'
+LAMBDA = '&lambda;'
+DELTA = '&Delta;'
+CONCAT = '<font name="SegoeUISymbol">\u2295</font>'
+DOT = '<font name="SegoeUISymbol">\u22c5</font>'
+
 
 # ---------------------------------------------------------------------------
 # Global Page Tracking for Two-Pass TOC Generation
@@ -117,6 +147,92 @@ def create_image_flowable(image_name, max_w=6.2*inch, max_h=3.6*inch):
 
 def create_caption(text, styles):
     return Paragraph(f"<b>{text}</b>", styles['FigureCaption'])
+
+def build_arxiv_algorithm(algo_id, title, inputs, outputs, steps, font_family='Arial', width=490):
+    algo_header_style = ParagraphStyle(
+        f'ArxivAlgoHeader_{algo_id}',
+        fontName=f'{font_family}-Bold', fontSize=8.5, leading=11,
+        textColor=colors.HexColor('#0f172a')
+    )
+    algo_io_style = ParagraphStyle(
+        f'ArxivAlgoIO_{algo_id}',
+        fontName=font_family, fontSize=7.3, leading=10,
+        textColor=colors.HexColor('#1e293b')
+    )
+    algo_num_style = ParagraphStyle(
+        f'ArxivAlgoNum_{algo_id}',
+        fontName=font_family, fontSize=7.2, leading=9.6,
+        alignment=2, textColor=colors.HexColor('#64748b')
+    )
+    algo_code_style = ParagraphStyle(
+        f'ArxivAlgoCode_{algo_id}',
+        fontName=font_family, fontSize=7.2, leading=9.6,
+        textColor=colors.HexColor('#0f172a')
+    )
+    
+    rows = []
+    rows.append([Paragraph(f"<b>Algorithm {algo_id}:</b> {title}", algo_header_style), ""])
+    rows.append([Paragraph(f"<b>Input:</b> {inputs}", algo_io_style), ""])
+    rows.append([Paragraph(f"<b>Output:</b> {outputs}", algo_io_style), ""])
+    
+    for num, line in steps:
+        rows.append([
+            Paragraph(f"{num}:", algo_num_style),
+            Paragraph(line, algo_code_style)
+        ])
+        
+    t_style = [
+        ('LINEABOVE', (0, 0), (-1, 0), 1.5, colors.HexColor('#0f172a')),
+        ('SPAN', (0, 0), (1, 0)),
+        ('SPAN', (0, 1), (1, 1)),
+        ('SPAN', (0, 2), (1, 2)),
+        ('LINEBELOW', (0, 0), (-1, 0), 0.75, colors.HexColor('#0f172a')),
+        ('LINEBELOW', (0, 2), (-1, 2), 0.5, colors.HexColor('#94a3b8')),
+        ('LINEBELOW', (0, -1), (-1, -1), 1.5, colors.HexColor('#0f172a')),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#fafaf9')),
+        ('TOPPADDING', (0, 0), (-1, 0), 3.5),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 3.5),
+        ('TOPPADDING', (0, 1), (-1, 2), 2.0),
+        ('BOTTOMPADDING', (0, 1), (-1, 2), 2.0),
+        ('TOPPADDING', (0, 3), (-1, -1), 1.0),
+        ('BOTTOMPADDING', (0, 3), (-1, -1), 1.0),
+        ('LEFTPADDING', (0, 0), (-1, -1), 3),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    ]
+    
+    table = Table(rows, colWidths=[22, width - 22])
+    table.setStyle(TableStyle(t_style))
+    return table
+
+def build_arxiv_equation(eq_num, formula_html, font_family='Arial', accent_color='#2563eb', width=490):
+    safe_id = str(eq_num).replace('.', '_')
+    eq_math_style = ParagraphStyle(
+        f'ArxivEqMath_{safe_id}',
+        fontName=font_family, fontSize=8.5, leading=12,
+        alignment=1, textColor=colors.HexColor('#0f172a')
+    )
+    eq_num_style = ParagraphStyle(
+        f'ArxivEqNum_{safe_id}',
+        fontName=f'{font_family}-Bold', fontSize=8.0, leading=12,
+        alignment=2, textColor=colors.HexColor('#475569')
+    )
+    
+    p_math = Paragraph(formula_html, eq_math_style)
+    p_num = Paragraph(f"({eq_num})", eq_num_style)
+    t = Table([[p_math, p_num]], colWidths=[width - 50, 50])
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#f8fafc')),
+        ('BOX', (0,0), (-1,-1), 0.5, colors.HexColor('#e2e8f0')),
+        ('LINELEFT', (0,0), (0,0), 2.5, colors.HexColor(accent_color)),
+        ('TOPPADDING', (0,0), (-1,-1), 4),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+        ('LEFTPADDING', (0,0), (-1,-1), 8),
+        ('RIGHTPADDING', (0,0), (-1,-1), 8),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+    ]))
+    return t
+
 
 
 # ---------------------------------------------------------------------------
@@ -329,7 +445,8 @@ def build_story(page_dict=None):
     story.append(Spacer(1, 14))
     story.append(Paragraph("List of Figures", h2_style))
     fig_entries = [
-        ("Figure 2.1: Two-Stage Recommendation Architecture (Retrieval & Pointwise Ranker)", p_num('sec2_3', 8)),
+        ("Figure 2.1: End-to-End Machine Learning Pipeline & Two-Stage Recommendation Flow", p_num('sec2_3', 8)),
+        ("Figure 3.0: Global System Use-Case Diagram & Actor Boundaries", p_num('sec3_1', 13)),
         ("Figure 3.1: Sequence Diagram for UC-02 Real-time Recommendation Inference", p_num('sec3_3', 15)),
         ("Figure 3.2: Sequence Diagram for UC-05 Background Model Retraining Pipeline", p_num('sec3_3', 16)),
         ("Figure 4.1: Enterprise 4-Tier Logical Architecture of the HUB System", p_num('sec4_1', 17)),
@@ -468,31 +585,28 @@ def build_story(page_dict=None):
     story.append(Paragraph("2.1  Decision Tree Formulation & Impurity Criteria", h2_style))
     story.append(Paragraph(
         "The core mathematical ranker employed in HUB is based on supervised binary classification decision trees recursively partitioned on feature space. "
-        "Let a training node <i>m</i> contain subset &fnof;<sub>m</sub> with <i>N<sub>m</sub></i> interaction pairs <b>x</b><sub>i</sub> &isin; &real;<sup>d</sup> and labels <i>y<sub>i</sub> &isin; {0, 1}</i>. "
+        "Let a training node <i>m</i> contain subset &fnof;<sub>m</sub> with <i>N<sub>m</sub></i> interaction pairs <b>x</b><sub>i</sub> &isin; <font name='SegoeUISymbol'>\u211d</font><sup><i>d</i></sup> and labels <i>y<sub>i</sub> &isin; {0, 1}</i>. "
         "The empirical probability of positive purchase interaction at node <i>m</i> is defined as:",
         body_style
     ))
-    story.append(Paragraph(
-        "<b>Equation 2.1:</b> &nbsp;&nbsp; <i>p<sub>mk</sub> = (1 / N<sub>m</sub>) &Sigma;<sub>(x<sub>i</sub>, y<sub>i</sub>) &isin; D<sub>m</sub></sub> &Iopf;(y<sub>i</sub> = k), &nbsp;&nbsp; k &isin; {0, 1}</i>",
-        eq_style
-    ))
+    story.append(Spacer(1, 2))
+    story.append(build_arxiv_equation("2.1", f"<i>p<sub>mk</sub></i> = (1 / <i>N<sub>m</sub></i>) &nbsp;{SUM}<sub>(<b>x</b><sub><i>i</i></sub>, <i>y<sub>i</sub></i>) {IN} <i>D<sub>m</sub></i></sub> <b>1</b>(<i>y<sub>i</sub></i> = <i>k</i>), &nbsp;&nbsp;&nbsp;&nbsp; <i>k</i> {IN} {{0, 1}}"))
+    story.append(Spacer(1, 4))
     story.append(Paragraph(
         "To measure partition homogeneity, HUB employs the <b>Gini Impurity</b> criterion, which quantifies the probability of misclassifying a randomly chosen element:",
         body_style
     ))
-    story.append(Paragraph(
-        "<b>Equation 2.2:</b> &nbsp;&nbsp; <i>I<sub>G</sub>(m) = 1 - &Sigma;<sub>k &isin; {0, 1}</sub> p<sub>mk</sub><sup>2</sup> = 2 p<sub>m1</sub> (1 - p<sub>m1</sub>)</i>",
-        eq_style
-    ))
+    story.append(Spacer(1, 2))
+    story.append(build_arxiv_equation("2.2", f"<i>I<sub>G</sub></i>(<i>m</i>) = 1 - {SUM}<sub><i>k</i> {IN} {{0, 1}}</sub> <i>p<sub>mk</sub></i><sup>2</sup> = 2 <i>p</i><sub><i>m</i>1</sub>(1 - <i>p</i><sub><i>m</i>1</sub>)"))
+    story.append(Spacer(1, 4))
     story.append(Paragraph(
         "For a candidate continuous or ordinal split candidate &theta; = (j, t) partitioning feature <i>j</i> at threshold <i>t</i> into left subset D<sub>m</sub><sup>L</sup>(&theta;) and right subset D<sub>m</sub><sup>R</sup>(&theta;), "
         "the optimal split &theta;<sup>*</sup> maximizes the <b>Information Gain</b> (or impurity reduction):",
         body_style
     ))
-    story.append(Paragraph(
-        "<b>Equation 2.3:</b> &nbsp;&nbsp; <i>&Delta; I<sub>G</sub>(m, &theta;) = I<sub>G</sub>(m) - [ (N<sub>m</sub><sup>L</sup> / N<sub>m</sub>) I<sub>G</sub>(D<sub>m</sub><sup>L</sup>) + (N<sub>m</sub><sup>R</sup> / N<sub>m</sub>) I<sub>G</sub>(D<sub>m</sub><sup>R</sup>) ]</i>",
-        eq_style
-    ))
+    story.append(Spacer(1, 2))
+    story.append(build_arxiv_equation("2.3", f"{DELTA}<i>I<sub>G</sub></i>(<i>m</i>, &theta;) = <i>I<sub>G</sub></i>(<i>m</i>) - <font size=9.5>[</font> (<i>N<sub>m</sub><sup>L</sup></i> / <i>N<sub>m</sub></i>) <i>I<sub>G</sub></i>(<i>D<sub>m</sub><sup>L</sup></i>) + (<i>N<sub>m</sub><sup>R</sup></i> / <i>N<sub>m</sub></i>) <i>I<sub>G</sub></i>(<i>D<sub>m</sub><sup>R</sup></i>) <font size=9.5>]</font>"))
+    story.append(Spacer(1, 4))
 
     story.append(PageTracker('sec2_2'))
     story.append(Paragraph("2.2  Ensemble Dynamics: Breiman's Random Forest", h2_style))
@@ -502,18 +616,21 @@ def build_story(page_dict=None):
         body_style
     ))
     story.append(Paragraph("• <b>Bootstrap Sampling Probability:</b> For an ensemble of <i>B = 200</i> trees, each tree <i>T<sub>b</sub></i> is trained on dataset D<sup>(b)</sup> constructed by sampling <i>N</i> instances from D uniformly with replacement. The theoretical probability of an instance being omitted from a tree is:", bullet_style))
-    story.append(Paragraph("<b>Equation 2.4:</b> &nbsp;&nbsp; <i>lim<sub>N &rarr; &infin;</sub> (1 - 1/N)<sup>N</sup> = 1/e &asymp; 0.368 (36.8% Out-of-Bag samples)</i>", eq_style))
-    story.append(Paragraph("• <b>Feature Subsampling & Variance Reduction:</b> At each internal node, only <i>m<sub>try</sub> = &lfloor;&radic;d&rfloor;</i> features (out of <i>d = 14</i>) are evaluated. Let individual trees have variance &sigma;<sup>2</sup> and pairwise correlation &rho;. The variance of the ensemble mean prediction is:", bullet_style))
-    story.append(Paragraph("<b>Equation 2.5:</b> &nbsp;&nbsp; <i>Var((1/B) &Sigma;<sub>b=1</sub><sup>B</sup> T<sub>b</sub>(x)) = &rho; &sigma;<sup>2</sup> + ((1 - &rho;) / B) &sigma;<sup>2</sup></i>", eq_style))
+    story.append(Spacer(1, 2))
+    story.append(build_arxiv_equation("2.4", "lim<sub><i>N</i> &rarr; &infin;</sub> (1 - 1/<i>N</i>)<sup><i>N</i></sup> = 1/<i>e</i> &asymp; 0.368 &nbsp;&nbsp;&nbsp;&nbsp; (36.8% Out-of-Bag samples)"))
+    story.append(Spacer(1, 4))
+    story.append(Paragraph("• <b>Feature Subsampling & Variance Reduction:</b> At each internal node, only <i>m<sub>try</sub> = <font name='SegoeUISymbol'>\u230a\u221a<i>d</i>\u230b</font></i> features (out of <i>d = 14</i>) are evaluated. Let individual trees have variance &sigma;<sup>2</sup> and pairwise correlation &rho;. The variance of the ensemble mean prediction is:", bullet_style))
+    story.append(Spacer(1, 2))
+    story.append(build_arxiv_equation("2.5", f"Var<font size=9.5>(</font>(1/<i>B</i>) {SUM}<sub><i>b</i>=1</sub><sup><i>B</i></sup> <i>T<sub>b</sub></i>(<b>x</b>)<font size=9.5>)</font> = &rho; &sigma;<sup>2</sup> + ((1 - &rho;) / <i>B</i>) &sigma;<sup>2</sup>"))
+    story.append(Spacer(1, 4))
     story.append(Paragraph(
         "As <i>B &rarr; &infin;</i>, the second term vanishes, leaving <i>&rho; &sigma;<sup>2</sup></i>. Random feature subsampling forces trees to split on diverse signals, minimizing inter-tree correlation &rho; without inflating bias. "
         "The final predicted purchase probability for customer <i>u</i> and candidate article <i>i</i> is computed as the ensemble expectation:",
         body_style
     ))
-    story.append(Paragraph(
-        "<b>Equation 2.6:</b> &nbsp;&nbsp; <i>p&#772;(u, i) = (1 / B) &Sigma;<sub>b=1</sub><sup>B</sup> P<sub>b</sub>(y = 1 | x<sub>u,i</sub>)</i>",
-        eq_style
-    ))
+    story.append(Spacer(1, 2))
+    story.append(build_arxiv_equation("2.6", f"<i>p&#772;</i>(<i>u</i>, <i>i</i>) = (1 / <i>B</i>) {SUM}<sub><i>b</i>=1</sub><sup><i>B</i></sup> <i>P<sub>b</sub></i>(<i>y</i> = 1 | <b>x</b><sub><i>u,i</i></sub>)"))
+    story.append(Spacer(1, 4))
 
     story.append(PageTracker('sec2_3'))
     story.append(Paragraph("2.3  Two-Stage Recommendation Architecture", h2_style))
@@ -522,39 +639,10 @@ def build_story(page_dict=None):
         body_style
     ))
 
-    arch_diagram = """
-+-------------------------------------------------------------------------------------------------------+
-|                                  TWO-STAGE RECOMMENDATION ARCHITECTURE                                 |
-|                                                                                                       |
-|  Full Catalog (105,542 Items) ------------------------+                                               |
-|                                                       |                                               |
-|  Active Customer u (Profile & History)                v                                               |
-|         |                                 +-------------------------+                                 |
-|         +-------------------------------->| STAGE 1: CANDIDATE GEN  | (High Recall Retrieval)         |
-|                                           | Heuristics & Graphs     | Output: C = 100 candidates      |
-|                                           +-------------------------+                                 |
-|                                                       |                                               |
-|                                                       v                                               |
-|                                           +-------------------------+                                 |
-|                                           | STAGE 2: FEATURE VECTOR | (14-Dimensional Extractor)      |
-|                                           | User, Item & Dynamic Int| Pair: x_{u, i} for i in C       |
-|                                           +-------------------------+                                 |
-|                                                       |                                               |
-|                                                       v                                               |
-|                                           +-------------------------+                                 |
-|                                           | RANDOM FOREST RANKER    | (Ensemble Scoring, B=200)       |
-|                                           | Pointwise P(y=1 | x)    | Predicts p_hat(u, i)            |
-|                                           +-------------------------+                                 |
-|                                                       |                                               |
-|                                                       v                                               |
-|                                           +-------------------------+                                 |
-|                                           | SESSION RE-RANKER       | (Real-time Decay & Diversity)   |
-|                                           | Half-life Exponential   | Output: Top-12 Ranked List      |
-|                                           +-------------------------+                                 |
-+-------------------------------------------------------------------------------------------------------+
-    """
-    story.append(Preformatted(arch_diagram.strip(), code_style))
-    story.append(create_caption("Figure 2.1: Two-Stage Recommendation Architecture (Retrieval & Pointwise Ranker)", styles))
+    story.append(Spacer(1, 4))
+    story.append(create_image_flowable("excalidraw_03_ml_training_pipeline.png", max_w=6.2*inch, max_h=3.0*inch))
+    story.append(create_caption("Figure 2.1: End-to-End Machine Learning Pipeline & Two-Stage Recommendation Flow (Excalidraw Visual Blueprint)", styles))
+    story.append(Spacer(1, 6))
 
     story.append(Spacer(1, 8))
     story.append(Paragraph("2.3.1  Algorithmic Formalization of Two-Stage Pipeline", h3_style))
@@ -563,52 +651,58 @@ def build_story(page_dict=None):
         body_style
     ))
 
-    algo1_text = """
-Algorithm 1: Stage 1 Multi-Channel Candidate Retrieval & Negative Subsampling
---------------------------------------------------------------------------------------------------------
-Input : Customer u, Transaction History D (t_dat < T_cutoff), Catalog I, Age Cohorts A, Ratio lambda=5
-Output: Training set T_u of pairs (u, i) with label y in {0, 1}
-1: C_u <- EmptySet
-2: C_repurchase <- {i in I | exists (u, i, t) in D with t >= T_cutoff - 28 days}
-3: C_bestseller <- TopK({i in I | sales_count(i, [T_cutoff - 7, T_cutoff])}, K=12)
-4: C_age        <- TopK({i in I | sales_count_by_age(i, age_group(u))}, K=8)
-5: C_copurchase <- {j in I | exists i in C_repurchase with co_purchased(i, j) >= 5}
-6: C_u <- (C_repurchase UNION C_bestseller UNION C_age UNION C_copurchase) limited to C=100
-7: Y_true <- {i in I | exists (u, i, t) in D with t in [T_cutoff, T_cutoff + 7 days]}
-8: Positives <- {(u, i, 1) | i in (C_u INTERSECT Y_true)}
-9: NegCandidates <- C_u \ Y_true
-10: Negatives <- SampleWithoutReplacement(NegCandidates, size = min(|NegCandidates|, lambda * |Positives|))
-11: Return Positives UNION {(u, j, 0) | j in Negatives}
-    """
-    story.append(Preformatted(algo1_text.strip(), code_style))
+    steps1 = [
+        (1, f"<i>C<sub>u</sub></i> {ASSIGN} {EMPTY}"),
+        (2, f"<i>C</i><sub>repurchase</sub> {ASSIGN} {{<i>i</i> {IN} <i>I</i> | {EXISTS} (<i>u</i>, <i>i</i>, <i>t</i>) {IN} <i>D</i> {AND} <i>t</i> {GE} <i>T</i><sub>cutoff</sub> - 28d}}"),
+        (3, f"<i>C</i><sub>bestseller</sub> {ASSIGN} TopK({{<i>i</i> {IN} <i>I</i> | sales_count(<i>i</i>, [<i>T</i><sub>cutoff</sub> - 7d, <i>T</i><sub>cutoff</sub>])}}, <i>K</i> = 12)"),
+        (4, f"<i>C</i><sub>age</sub> {ASSIGN} TopK({{<i>i</i> {IN} <i>I</i> | sales_by_cohort(<i>i</i>, age_group(<i>u</i>))}}, <i>K</i> = 8)"),
+        (5, f"<i>C</i><sub>copurchase</sub> {ASSIGN} {{<i>j</i> {IN} <i>I</i> | {EXISTS} <i>i</i> {IN} <i>C</i><sub>repurchase</sub> {AND} co_purchased(<i>i</i>, <i>j</i>) {GE} 5}}"),
+        (6, f"<i>C<sub>u</sub></i> {ASSIGN} Truncate(<i>C</i><sub>repurchase</sub> {UNION} <i>C</i><sub>bestseller</sub> {UNION} <i>C</i><sub>age</sub> {UNION} <i>C</i><sub>copurchase</sub>, <i>C</i><sub>max</sub> = 100)"),
+        (7, f"<i>Y</i><sub>true</sub> {ASSIGN} {{<i>i</i> {IN} <i>I</i> | {EXISTS} (<i>u</i>, <i>i</i>, <i>t</i>) {IN} <i>D</i> {AND} <i>t</i> {IN} [<i>T</i><sub>cutoff</sub>, <i>T</i><sub>cutoff</sub> + 7d]}}"),
+        (8, f"<b>Positives</b> {ASSIGN} {{(<i>u</i>, <i>i</i>, 1) | <i>i</i> {IN} (<i>C<sub>u</sub></i> {INTERSECT} <i>Y</i><sub>true</sub>)}} &nbsp;&nbsp;&nbsp;&nbsp;<font color=\"#64748b\"><i>// True purchase ground truth</i></font>"),
+        (9, f"<i>N</i><sub>cand</sub> {ASSIGN} <i>C<sub>u</sub></i> {SETMINUS} <i>Y</i><sub>true</sub> &nbsp;&nbsp;&nbsp;&nbsp;<font color=\"#64748b\"><i>// Candidate negative item space</i></font>"),
+        (10, f"<i>k</i><sub>neg</sub> {ASSIGN} min(|<i>N</i><sub>cand</sub>|, {LAMBDA}<sub>neg</sub> {TIMES} |<b>Positives</b>|)"),
+        (11, f"<b>Negatives</b> {ASSIGN} SampleWithoutReplacement(<i>N</i><sub>cand</sub>, <i>k</i><sub>neg</sub>)"),
+        (12, f"<b>return</b> <i>T<sub>u</sub></i> {ASSIGN} <b>Positives</b> {UNION} {{(<i>u</i>, <i>j</i>, 0) | <i>j</i> {IN} <b>Negatives</b>}}")
+    ]
+    algo1_flowable = build_arxiv_algorithm(
+        "1", "Stage 1 Multi-Channel Candidate Retrieval & Controlled Negative Sampling",
+        f"Customer <i>u</i> {IN} <i>U</i>, Transactions <i>D</i> (<i>t</i> &lt; <i>T</i><sub>cutoff</sub>), Catalog <i>I</i>, Cohorts <i>A</i>, Ratio {LAMBDA}<sub>neg</sub> = 5",
+        f"Balanced training set <i>T<sub>u</sub></i> = {{(<i>u</i>, <i>i</i>, <i>y</i>)}} with binary label <i>y</i> {IN} {{0, 1}}",
+        steps1
+    )
+    story.append(algo1_flowable)
     story.append(create_caption("Algorithm 2.1: Multi-Channel Candidate Retrieval & Controlled Negative Sampling", styles))
+    story.append(PageBreak())
 
-    story.append(Spacer(1, 6))
-
-    algo2_text = """
-Algorithm 2: Real-Time In-Session Re-Ranking with Half-Life Exponential Decay
---------------------------------------------------------------------------------------------------------
-Input : User u, Pre-scored Model Candidates {(i, p_hat(u, i))}, Active Session Events E_u, Target K=12
-Output: Final Ordered Recommendation List R_u
-1: Anchors <- Dictionary(Default=0.0)
-2: For event e in E_u (ordered from newest to oldest, max 50 events):
-3:     delta_t <- (Now - e.timestamp) in days
-4:     weight  <- EventWeight(e.type) * (0.5 ** (delta_t / 3.0))  // Half-life t_1/2 = 3.0 days
-5:     Anchors[e.article_id] += weight
-6: Blocked <- {e.article_id | e.type == PURCHASED OR (e.type == FEEDBACK and e.rating <= 2)}
-7: CandidatePool <- {(i, p_hat(u, i)) | i not in Blocked}
-8: For each (i, score) in CandidatePool:
-9:     boost <- Sum_{a in Anchors} Anchors[a] * Similarity(category(i), category(a))
-10:    final_score(i) <- score * (1.0 + max(0.0, boost))
-11: SortedPool <- SortDescending(CandidatePool, key = final_score)
-12: R_u <- EmptyList, SeenCodes <- EmptySet
-13: For each (i, score) in SortedPool:
-14:     If product_code(i) not in SeenCodes:
-15:         Append i to R_u; Add product_code(i) to SeenCodes
-16:     If |R_u| == K: Break
-17: Return R_u
-    """
-    story.append(Preformatted(algo2_text.strip(), code_style))
+    steps2 = [
+        (1, f"<b>a</b> {ASSIGN} <b>0</b><sub>|<i>V</i>|</sub> &nbsp;&nbsp;&nbsp;&nbsp;<font color=\"#64748b\"><i>// Initialize session anchor category weight vector</i></font>"),
+        (2, f"<b>for each</b> event <i>e</i> = (<i>i<sub>e</sub></i>, &tau;<sub><i>e</i></sub>, <i>t<sub>e</sub></i>) {IN} <i>E<sub>u</sub></i> (ordered newest to oldest, max 50) <b>do</b>:"),
+        (3, f"&nbsp;&nbsp;&nbsp;&nbsp; {DELTA}<i>t</i> {ASSIGN} (<i>t</i><sub>now</sub> - <i>t<sub>e</sub></i>) in days"),
+        (4, f"&nbsp;&nbsp;&nbsp;&nbsp; <i>w</i>(<i>e</i>) {ASSIGN} &omega;(&tau;<sub><i>e</i></sub>) {TIMES} 2<sup>-{DELTA}<i>t</i> / <i>t</i><sub>1/2</sub></sup> &nbsp;&nbsp;&nbsp;&nbsp;<font color=\"#64748b\"><i>// Exponential decay with half-life t<sub>1/2</sub> = 3.0 days</i></font>"),
+        (5, f"&nbsp;&nbsp;&nbsp;&nbsp; <b>a</b>[category(<i>i<sub>e</sub></i>)] {ASSIGN} <b>a</b>[category(<i>i<sub>e</sub></i>)] + <i>w</i>(<i>e</i>)"),
+        (6, f"<b>end for</b>"),
+        (7, f"<i>B</i> {ASSIGN} {{<i>i<sub>e</sub></i> | &tau;<sub><i>e</i></sub> = PURCHASED {OR} (&tau;<sub><i>e</i></sub> = FEEDBACK {AND} rating(<i>e</i>) {LE} 2)}} &nbsp;&nbsp;&nbsp;&nbsp;<font color=\"#64748b\"><i>// Hard suppression</i></font>"),
+        (8, f"<i>C</i><sub>active</sub> {ASSIGN} {{(<i>i</i>, <i>p&#770;</i>(<i>u</i>, <i>i</i>)) {IN} <i>C<sub>u</sub></i> | <i>i</i> {NOTIN} <i>B</i>}}"),
+        (9, f"<b>for each</b> candidate (<i>i</i>, <i>p&#770;</i>) {IN} <i>C</i><sub>active</sub> <b>do</b>:"),
+        (10, f"&nbsp;&nbsp;&nbsp;&nbsp; boost(<i>i</i>) {ASSIGN} {SUM}<sub><i>c</i> {IN} categories</sub> <b>a</b>[<i>c</i>] {DOT} Similarity(category(<i>i</i>), <i>c</i>)"),
+        (11, f"&nbsp;&nbsp;&nbsp;&nbsp; <i>s</i><sub>final</sub>(<i>i</i>) {ASSIGN} <i>p&#770;</i> {TIMES} (1.0 + max(0.0, boost(<i>i</i>)))"),
+        (12, f"<b>end for</b>"),
+        (13, f"<i>S</i> {ASSIGN} SortDescending(<i>C</i><sub>active</sub>, key = <i>s</i><sub>final</sub>)"),
+        (14, f"<i>R<sub>u</sub></i> {ASSIGN} [ ], &nbsp;&nbsp; <i>G</i><sub>seen</sub> {ASSIGN} {EMPTY}"),
+        (15, f"<b>for each</b> (<i>i</i>, <i>s</i>) {IN} <i>S</i> <b>do</b>:"),
+        (16, f"&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> product_code(<i>i</i>) {NOTIN} <i>G</i><sub>seen</sub> <b>then</b>:"),
+        (17, f"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>R<sub>u</sub></i> {ASSIGN} <i>R<sub>u</sub></i> {CONCAT} [<i>i</i>], &nbsp;&nbsp; <i>G</i><sub>seen</sub> {ASSIGN} <i>G</i><sub>seen</sub> {UNION} {{product_code(<i>i</i>)}}"),
+        (18, f"&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> |<i>R<sub>u</sub></i>| = <i>K</i> <b>then</b> <b>break</b>"),
+        (19, f"<b>return</b> <i>R<sub>u</sub></i> &nbsp;&nbsp;&nbsp;&nbsp;<font color=\"#64748b\"><i>// Final re-ranked diversified Top-12 recommendation sequence</i></font>")
+    ]
+    algo2_flowable = build_arxiv_algorithm(
+        "2", "Real-Time In-Session Dynamic Re-Ranking with Half-Life Exponential Decay",
+        f"User <i>u</i>, Pre-scored Candidates {{(<i>i</i>, <i>p&#770;</i>(<i>u</i>, <i>i</i>))}}, Active Session Stream <i>E<sub>u</sub></i>, Target <i>K</i> = 12",
+        f"Final context-aware recommendation sequence <i>R<sub>u</sub></i> = [<i>i</i><sub>1</sub>, ..., <i>i<sub>K</sub></i>]",
+        steps2
+    )
+    story.append(algo2_flowable)
     story.append(create_caption("Algorithm 2.2: Real-Time In-Session Dynamic Re-Ranking & Diversity Enforcement", styles))
     story.append(Spacer(1, 8))
 
@@ -630,15 +724,13 @@ Output: Final Ordered Recommendation List R_u
         body_style
     ))
     story.append(Paragraph("• <b>Mean Average Precision at 12 (MAP@12):</b> Computes rank-weighted precision across top-12 recommendations normalized by the minimum of ground-truth purchases and 12:", bullet_style))
-    story.append(Paragraph(
-        "<b>Equation 2.7:</b> &nbsp;&nbsp; <i>AP@12(u) = (1 / min(|Y<sub>u</sub>|, 12)) &Sigma;<sub>k=1</sub><sup>12</sup> P<sub>u</sub>(k) &times; rel<sub>u</sub>(k), &nbsp;&nbsp;&nbsp; MAP@12 = (1 / |U|) &Sigma;<sub>u=1</sub><sup>|U|</sup> AP@12(u)</i>",
-        eq_style
-    ))
+    story.append(Spacer(1, 2))
+    story.append(build_arxiv_equation("2.7", f"<i>AP@12</i>(<i>u</i>) = (1 / min(|<i>Y<sub>u</sub></i>|, 12)) &nbsp;{SUM}<sub><i>k</i>=1</sub><sup>12</sup> <i>P<sub>u</sub></i>(<i>k</i>) {TIMES} <i>rel<sub>u</sub></i>(<i>k</i>), &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>MAP@12</i> = (1 / |<i>U</i>|) &nbsp;{SUM}<sub><i>u</i>=1</sub><sup>|<i>U</i>|</sup> <i>AP@12</i>(<i>u</i>)"))
+    story.append(Spacer(1, 4))
     story.append(Paragraph("• <b>Normalized Discounted Cumulative Gain at 12 (NDCG@12):</b> Penalizes relevant items appearing lower in the recommended list using logarithmic positional discounting:", bullet_style))
-    story.append(Paragraph(
-        "<b>Equation 2.8:</b> &nbsp;&nbsp; <i>DCG@12(u) = &Sigma;<sub>k=1</sub><sup>12</sup> (2<sup>rel<sub>u</sub>(k)</sup> - 1) / log<sub>2</sub>(k + 1), &nbsp;&nbsp;&nbsp; NDCG@12(u) = DCG@12(u) / IDCG@12(u)</i>",
-        eq_style
-    ))
+    story.append(Spacer(1, 2))
+    story.append(build_arxiv_equation("2.8", f"<i>DCG@12</i>(<i>u</i>) = {SUM}<sub><i>k</i>=1</sub><sup>12</sup> (2<sup><i>rel<sub>u</sub></i>(<i>k</i>)</sup> - 1) / log<sub>2</sub>(<i>k</i> + 1), &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>NDCG@12</i>(<i>u</i>) = <i>DCG@12</i>(<i>u</i>) / <i>IDCG@12</i>(<i>u</i>)"))
+    story.append(Spacer(1, 4))
     story.append(Paragraph("• <b>Candidate Retrieval Recall (Stage 1 Recall):</b> Quantifies the percentage of true future purchases captured within the top-100 candidate pool: <i>Recall<sub>cand</sub> = |C<sub>u</sub> &cap; Y<sub>u</sub>| / |Y<sub>u</sub>|</i>.", bullet_style))
 
     story.append(PageBreak())
@@ -677,7 +769,10 @@ Output: Final Ordered Recommendation List R_u
         ('TOPPADDING', (0,0), (-1,-1), 4), ('BOTTOMPADDING', (0,0), (-1,-1), 4),
     ]))
     story.append(rbac_table)
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 8))
+    story.append(create_image_flowable("excalidraw_02_usecase_diagram.png", max_w=5.8*inch, max_h=3.5*inch))
+    story.append(create_caption("Figure 3.0: Global System Use-Case Diagram & Actor Boundaries (Excalidraw Modeling)", styles))
+    story.append(Spacer(1, 8))
 
     story.append(PageTracker('sec3_2'))
     story.append(Paragraph("3.2  Comprehensive Use Case Specifications (UC-01 to UC-08)", h2_style))
@@ -785,26 +880,9 @@ Output: Final Ordered Recommendation List R_u
         body_style
     ))
 
-    seq1_text = """
-Buyer (Browser)         FastAPI (Router)      SessionReRanker      Database (SQLite)
-      |                       |                      |                     |
-      |--- GET /predict/u --->|                      |                     |
-      |                       |--- Query base recs ----------------------->|
-      |                       |<-- Return Model Top-50 recs ---------------|
-      |                       |                      |                     |
-      |                       |--- Query recent interactions ------------->|
-      |                       |<-- Return (views, cart, wishlist) ---------|
-      |                       |                      |                     |
-      |                       |--- Pass to rerank() ->|                     |
-      |                       |    Apply exp decay   |                     |
-      |                       |    Block purchased   |                     |
-      |                       |    Enforce max_code  |                     |
-      |                       |<-- Return Top-12 ----|                     |
-      |                       |                      |                     |
-      |<-- HTTP 200 (Top-12) -|                      |                     |
-    """
-    story.append(Preformatted(seq1_text.strip(), code_style))
-    story.append(create_caption("Figure 3.1: Sequence Diagram for UC-02 Real-time Recommendation Inference", styles))
+    story.append(Spacer(1, 4))
+    story.append(create_image_flowable("excalidraw_04_session_rerank_sequence.png", max_w=6.0*inch, max_h=3.4*inch))
+    story.append(create_caption("Figure 3.1: Sequence Interaction Diagram for UC-02 Real-Time Session Re-Ranking (Excalidraw Flow)", styles))
     story.append(Spacer(1, 10))
 
     seq2_text = """
@@ -846,39 +924,10 @@ Data Scientist         FastAPI Router         Worker Thread          Kaggle Kern
         body_style
     ))
 
-    arch4_text = """
-+-------------------------------------------------------------------------------------------------------+
-| TIER 1: PRESENTATION LAYER (React 18 Single-Page Application)                                         |
-| TypeScript, Vite, Tailwind CSS, Lucide React, Axios HTTP Service                                     |
-| Role Spaces: /buyer (Storefront), /data-science (Observability), /admin (Operations Dashboard)       |
-+-------------------------------------------------------------------------------------------------------+
-                                                   |  RESTful JSON API over HTTPS
-                                                   v
-+-------------------------------------------------------------------------------------------------------+
-| TIER 2: API GATEWAY & ROUTING LAYER (FastAPI Async Framework)                                        |
-| Authentication & JWT Bearer Security (OAuth2), CORS Middleware, Pydantic Request Validation          |
-| Routers: /auth, /products, /predict, /cart, /wishlist, /orders, /ai, /dashboard, /feedback             |
-+-------------------------------------------------------------------------------------------------------+
-                                                   |  Service Calls & Internal Dependency Injection
-                                                   v
-+-------------------------------------------------------------------------------------------------------+
-| TIER 3: BUSINESS LOGIC & INFERENCE ENGINE (Python Core Services)                                      |
-| • recommendation_service.py: Base prediction retrieval & caching                                      |
-| • session_rerank.py: In-memory dynamic half-life decay re-ranking & diversity filter                 |
-| • hm_pipeline_service.py: Background threading worker, Kaggle orchestration, scheduler daemon         |
-| • sales_service.py: Commercial revenue aggregation, daily closure, monthly accounting                |
-+-------------------------------------------------------------------------------------------------------+
-                                                   |  SQLAlchemy ORM & Filesystem Persistence
-                                                   v
-+-------------------------------------------------------------------------------------------------------+
-| TIER 4: PERSISTENCE & DATA STORAGE LAYER                                                              |
-| • SQLite / PostgreSQL: Relational storage (Users, Products, Orders, Feedbacks, Recommendations)       |
-| • File System Artifacts: Joblib Scaler (scaler.joblib), Random Forest model, runs.json, summary.json |
-| • Static Image Server: Product catalog garment photography (/images/...)                             |
-+-------------------------------------------------------------------------------------------------------+
-    """
-    story.append(Preformatted(arch4_text.strip(), code_style))
-    story.append(create_caption("Figure 4.1: Enterprise 4-Tier Logical Architecture of the HUB System", styles))
+    story.append(Spacer(1, 4))
+    story.append(create_image_flowable("excalidraw_01_architecture_4tier.png", max_w=6.2*inch, max_h=3.5*inch))
+    story.append(create_caption("Figure 4.1: Enterprise 4-Tier Modular System Architecture (Excalidraw Visual Blueprint)", styles))
+    story.append(Spacer(1, 6))
 
     story.append(PageTracker('sec4_2'))
     story.append(Paragraph("4.2  Relational Database Schema & Data Dictionary", h2_style))
