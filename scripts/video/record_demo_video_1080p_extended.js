@@ -14,10 +14,11 @@
  *     Lịch sử toàn bộ đơn hàng hệ thống (/admin Orders), Dashboard doanh thu & nhật ký hoạt động (/dashboard).
  */
 
-const { chromium } = require('./front-end/node_modules/playwright');
 const path = require('path');
 const fs = require('fs');
 const { execSync } = require('child_process');
+const projectRoot = path.resolve(__dirname, '../../');
+const { chromium } = require(path.join(projectRoot, 'front-end/node_modules/playwright'));
 
 async function injectCursorAndBanner(page) {
   await page.addInitScript(() => {
@@ -177,7 +178,7 @@ async function smoothScroll(page, deltaY, steps = 14) {
 async function recordExtendedDemo() {
   console.log('🎬 [1080p Extended] Bắt đầu quay Video Demo Toàn Diện Hệ Thống HUB (1920x1080)...');
 
-  const tempVideoDir = path.join(__dirname, 'temp_video_1080p_extended');
+  const tempVideoDir = path.join(projectRoot, 'temp_video_1080p_extended');
   if (fs.existsSync(tempVideoDir)) {
     fs.rmSync(tempVideoDir, { recursive: true, force: true });
   }
@@ -845,7 +846,7 @@ async function recordExtendedDemo() {
   }
 
   const rawWebm = path.join(tempVideoDir, recordedFiles[0]);
-  const outputMp4 = path.join(__dirname, 'DEMO_INTELLIGENT_SYSTEMS_HUB_1080P.mp4');
+  const outputMp4 = path.join(projectRoot, 'DEMO_INTELLIGENT_SYSTEMS_HUB_1080P.mp4');
   const ffmpegExe = 'C:\\Users\\Admin\\anaconda3\\envs\\hub\\Lib\\site-packages\\imageio_ffmpeg\\binaries\\ffmpeg-win-x86_64-v9.0.2.exe';
 
   try {

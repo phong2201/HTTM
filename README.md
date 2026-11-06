@@ -11,7 +11,7 @@
 | Dữ liệu | [H&M Personalized Fashion Recommendations](https://www.kaggle.com/competitions/h-and-m-personalized-fashion-recommendations/data) — 31,8 triệu giao dịch, 105.542 sản phẩm, 1,37 triệu khách (2018-09-20 → 2020-09-22). **Không dùng dữ liệu mô phỏng.** |
 | Actor | **Buyer** (mua sắm, nhận gợi ý), **Admin** (quản lý user/sản phẩm/đơn, dashboard), **Data Scientist** (EDA, cấu hình & huấn luyện, đánh giá, phân tích lỗi, lịch cập nhật) |
 | Thành phần | `front-end/` React + Vite · `backend/` FastAPI + SQLAlchemy · `data_scientist/hm_pipeline/` pipeline ML chạy trên Kaggle hoặc local |
-| Tài liệu nộp bài | 📄 **[Báo cáo Học thuật Chi tiết (REPORT.md)](REPORT.md)** · 📊 **[Slide Thuyết trình & Kịch bản Demo (SLIDES.md)](SLIDES.md)** · 🎨 **[Đặc tả UI (HUB_UI_SPEC.md)](HUB_UI_SPEC.md)** |
+| Tài liệu & Sản phẩm nộp bài | 📕 **[Báo cáo PDF Tiếng Anh (REPORT_INTELLIGENT_SYSTEMS_HUB.pdf)](REPORT_INTELLIGENT_SYSTEMS_HUB.pdf)** · 📘 **[Báo cáo PDF Tiếng Việt (REPORT_INTELLIGENT_SYSTEMS_HUB_VI.pdf)](REPORT_INTELLIGENT_SYSTEMS_HUB_VI.pdf)** · 🎬 **[Video Demo Full HD 1080p](DEMO_INTELLIGENT_SYSTEMS_HUB_1080P.mp4)** · 📄 **[Báo cáo Markdown (docs/reports/)](docs/reports/REPORT_HCMUT_STANDARD.md)** · 📊 **[Slide Thuyết trình (docs/slides/SLIDES.md)](docs/slides/SLIDES.md)** · 🎨 **[Đặc tả UI (docs/specs/HUB_UI_SPEC.md)](docs/specs/HUB_UI_SPEC.md)** |
 
 ---
 
@@ -127,51 +127,50 @@ luồng đặt hàng & tính tiền, gợi ý theo hành vi, doanh số loại �
 - Random Forest của scikit-learn chạy CPU; Kaggle cấp 4 nhân → một lần chạy toàn bộ khách mất ~20–30 phút (chưa kể thời gian Kaggle xếp hàng).
 - Không có ảnh cho ~0,2% sản phẩm (dataset thiếu ảnh) → web hiển thị ô thay thế.
 
-## 7. Cấu trúc thư mục
+## 7. Cấu trúc thư mục dự án
 
 ```
 HTTM/
-├── package.json              # Lệnh chung: setup, dev, test, build (chạy từ thư mục gốc)
-├── environment.yml           # Env conda "hub" cho backend + pipeline
-├── HUB_UI_SPEC.md            # Đặc tả giao diện theo từng role
+├── DEMO_INTELLIGENT_SYSTEMS_HUB_1080P.mp4   # 🎬 Video Demo Toàn diện Full HD 1080p (~5 phút)
+├── REPORT_INTELLIGENT_SYSTEMS_HUB.pdf       # 📕 Báo cáo học thuật tiếng Anh (chuẩn LaTeX/arXiv)
+├── REPORT_INTELLIGENT_SYSTEMS_HUB_VI.pdf    # 📘 Báo cáo BTL tiếng Việt hoàn chỉnh
+├── README.md                                # Hướng dẫn tổng quan & khởi chạy hệ thống
+├── package.json                             # Lệnh npm root: setup, dev, test, build
+├── environment.yml                          # Môi trường Conda "hub" (Python 3.11, PyTorch, scikit-learn)
 │
-├── front-end/                # React + Vite + TypeScript
+├── backend/                                 # Dịch vụ Backend FastAPI + SQLAlchemy
+│   ├── main.py                              # Khởi tạo app, đăng ký router, phục vụ ảnh tĩnh
+│   ├── database.py                          # Kết nối cơ sở dữ liệu
+│   ├── core/                                # Cấu hình (config.py), Bảo mật JWT (security.py)
+│   ├── dependencies/                        # RBAC middleware kiểm tra quyền truy cập theo role
+│   ├── routers/                             # Endpoints: auth, products, cart, order, wishlist, feedback, recommendation, dashboard
+│   ├── services/                            # hm_pipeline_service.py điều phối, session_rerank.py tái xếp hạng
+│   ├── models/                              # SQLAlchemy ORM Models
+│   └── tests/                               # Bộ unit test & integration test pytest
+│
+├── front-end/                               # Giao diện Web SPA (React 18 + Vite + TypeScript)
 │   └── src/
-│       ├── main.tsx          # Điểm vào
-│       ├── app/              # App.tsx, routes.tsx (định tuyến theo role), components/ui (thư viện UI)
-│       ├── components/       # common (thẻ, bảng, trạng thái…), layout (Header, CartDrawer, RequireRole), product
-│       ├── pages/
-│       │   ├── auth/         # Đăng nhập / đăng ký
-│       │   ├── buyer/        # Trang chủ (gợi ý), sản phẩm, chi tiết, thanh toán, đơn hàng, wishlist
-│       │   ├── admin/        # Dashboard, quản lý user / sản phẩm / đơn
-│       │   └── data-science/ # EDA, Lịch chạy, Model metrics, Phân tích lỗi
-│       ├── context/          # AuthContext (phiên đăng nhập), ShopContext (giỏ, wishlist)
-│       ├── services/api.ts   # Gọi API backend
-│       └── config/roles.ts   # Định nghĩa role và quyền truy cập
+│       ├── app/                             # routes.tsx (phân quyền RBAC), components/ui
+│       ├── pages/                           # buyer/, admin/, data-science/, auth/
+│       ├── context/                         # AuthContext (JWT session), ShopContext (Cart & Wishlist)
+│       └── services/api.ts                  # Axios client kết nối FastAPI gateway
 │
-├── backend/                  # FastAPI + SQLAlchemy
-│   ├── main.py               # Khởi tạo app, đăng ký router, phục vụ ảnh tĩnh /images
-│   ├── database.py           # Kết nối DB
-│   ├── core/                 # config.py (biến môi trường, hệ số giá), security.py (JWT, băm mật khẩu)
-│   ├── dependencies/         # auth_deps.py: lấy user hiện tại, kiểm tra role
-│   ├── routers/              # Định nghĩa endpoint: auth, product, cart, order, wishlist,
-│   │                         #   feedback, recommendation, dashboard, user, hm_ai (Train AI / import run)
-│   ├── services/             # Nghiệp vụ; hm_pipeline_service.py điều phối pipeline H&M,
-│   │                         #   session_rerank.py sắp xếp lại gợi ý theo hành vi trong phiên
-│   ├── repositories/         # Truy vấn DB theo từng bảng
-│   ├── models/               # Model SQLAlchemy (bảng)
-│   ├── schemas/              # Schema Pydantic cho request / response
-│   ├── scripts/              # seed_demo_activity.py (sinh hoạt động mẫu), dump_schema.py (sinh scripts.sql)
-│   ├── scripts.sql           # Lược đồ DB sinh từ model (dùng cho Postgres)
-│   ├── tests/                # pytest: test_api.py, test_pipeline.py
-│   └── recommendation_system.db  # SQLite mặc định
+├── data_scientist/                          # Pipeline Khoa học Dữ liệu & Học máy (MLOps)
+│   ├── hm_pipeline/                         # hub_pipeline.py: Two-stage Random Forest pipeline
+│   └── notebooks/                           # Notebooks phân tích EDA 31.78M giao dịch Kaggle
 │
-├── data_scientist/
-│   ├── hm_pipeline/          # hub_pipeline.py: pipeline Random Forest (Kaggle / local) + README
-│   ├── images/hm/            # Ảnh sản phẩm H&M (không đưa lên git, sinh lại khi import run)
-│   └── runs/<run_id>/        # Kết quả mỗi lần chạy (không đưa lên git)
+├── docs/                                    # Toàn bộ tài liệu báo cáo, sơ đồ & đặc tả
+│   ├── reports/                             # REPORT_HCMUT_STANDARD.md, REPORT_HCMUT_TIENG_VIET.md, REPORT.md
+│   ├── diagrams/                            # Bản thiết kế Excalidraw (01_architecture, 02_usecase, 03_pipeline, 04_rerank)
+│   ├── report_assets/                       # 16+ hình ảnh biểu đồ phân tích dữ liệu và sơ đồ kiến trúc
+│   ├── specs/                               # Đặc tả giao diện chi tiết (HUB_UI_SPEC.md)
+│   └── slides/                              # Slide thuyết trình bảo vệ đồ án (SLIDES.md)
 │
-└── data/hm/                  # (Tùy chọn) CSV H&M khi chạy pipeline local (không đưa lên git)
+└── scripts/                                 # Bộ công cụ tự động hóa & kết xuất
+    ├── reports/                             # generate_pdf_report.py, generate_pdf_report_vi.py
+    ├── video/                               # record_demo_video_1080p_extended.js (kịch bản quay Playwright)
+    ├── tests/                               # run_ui_tests.js (kiểm thử giao diện)
+    └── patches/                             # Các công cụ hỗ trợ chuẩn hóa ký tự toán học & định dạng
 ```
 
 ## 8. Quy trình vận hành
