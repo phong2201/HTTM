@@ -44,7 +44,7 @@
   --hub-danger-soft: #fde8e6;
   --hub-info: #3b5ba9;
   --hub-info-soft: #e5eaf6;
-  --hub-shadow-card: 0 1px 4px rgba(0, 0, 0, 0.07);
+  --hub-shadow-card: 0 2px 10px -2px rgba(20, 20, 20, 0.06), 0 1px 3px -1px rgba(20, 20, 20, 0.04);
 
   --chart-1: #ff7a3d;
   --chart-2: #ff5e7e;
@@ -153,5 +153,56 @@
   [aria-disabled='true'],
   [data-disabled] {
     cursor: not-allowed;
+  }
+}
+
+@keyframes hub-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hub-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-10px, -12px, 0) scale(1.04);
+  }
+}
+
+@keyframes hub-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-fade-up {
+  animation: hub-fade-up 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-float-slow {
+  animation: hub-float 9s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, #f2f0f0 25%, #fff3f5 50%, #f2f0f0 75%);
+  background-size: 200% 100%;
+  animation: hub-shimmer 1.6s infinite linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-float-slow,
+  .animate-shimmer {
+    animation: none !important;
   }
 }

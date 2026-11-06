@@ -9,10 +9,6 @@ CREATE TYPE orderstatus AS ENUM ('PENDING', 'DELIVERING', 'COMPLETED', 'CANCELLE
 CREATE TABLE model_versions (
 	id UUID NOT NULL, 
 	version_tag VARCHAR(50) NOT NULL, 
-	image_feat_path VARCHAR(500), 
-	text_feat_path VARCHAR(500), 
-	meta_feat_path VARCHAR(500), 
-	gnn_emb_path VARCHAR(500), 
 	model_weights_path VARCHAR(500), 
 	is_active BOOLEAN, 
 	product_count INTEGER NOT NULL, 
@@ -46,6 +42,32 @@ CREATE INDEX ix_products_index_group_name ON products (index_group_name);
 CREATE INDEX ix_products_product_code ON products (product_code);
 CREATE INDEX ix_products_product_group_name ON products (product_group_name);
 
+CREATE TABLE sales_daily (
+	day DATE NOT NULL, 
+	orders INTEGER NOT NULL, 
+	cancelled_orders INTEGER NOT NULL, 
+	items INTEGER NOT NULL, 
+	customers INTEGER NOT NULL, 
+	revenue FLOAT NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(), 
+	PRIMARY KEY (day)
+);
+
+CREATE TABLE sales_periods (
+	id SERIAL NOT NULL, 
+	period_type VARCHAR(5) NOT NULL, 
+	period_key VARCHAR(7) NOT NULL, 
+	orders INTEGER NOT NULL, 
+	cancelled_orders INTEGER NOT NULL, 
+	items INTEGER NOT NULL, 
+	customers INTEGER NOT NULL, 
+	revenue FLOAT NOT NULL, 
+	top_products TEXT, 
+	closed_at TIMESTAMP WITH TIME ZONE DEFAULT now(), 
+	PRIMARY KEY (id), 
+	CONSTRAINT _sales_period_uc UNIQUE (period_type, period_key)
+);
+
 CREATE TABLE users (
 	id UUID NOT NULL, 
 	role_id role NOT NULL, 
@@ -72,16 +94,6 @@ CREATE TABLE carts (
 	CONSTRAINT _user_product_cart_uc UNIQUE (user_id, product_id), 
 	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE, 
 	FOREIGN KEY(product_id) REFERENCES products (id) ON DELETE CASCADE
-);
-
-CREATE TABLE eda_reports (
-	id UUID NOT NULL, 
-	eda_type VARCHAR(20), 
-	version_id UUID, 
-	created_at TIMESTAMP WITH TIME ZONE DEFAULT now(), 
-	report_files JSONB, 
-	PRIMARY KEY (id), 
-	FOREIGN KEY(version_id) REFERENCES model_versions (id)
 );
 
 CREATE TABLE feedbacks (

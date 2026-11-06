@@ -778,11 +778,13 @@ class PipelineService:
                 due = now.replace(hour=h, minute=m, second=0, microsecond=0)
                 today = now.date().isoformat()
                 # Chỉ chạy trong 1 giờ sau giờ hẹn → mở máy buổi trưa không tự kích hoạt.
-                if (cfg["schedule_enabled"] and due <= now < due + timedelta(hours=1)
-                        and self.state["last_scheduled_date"] != today and not self.is_running()):
+                # Kích hoạt khi đến giờ hẹn hoặc chạy bù (catch-up) nếu hôm nay chưa chạy lần nào
+                if (cfg["schedule_enabled"] and now >= due
+                        and self.state.get("last_scheduled_date") != today and not self.is_running()):
                     with self._lock:
                         self.state["last_scheduled_date"] = today
                         self._save()
+                    print(f"[hm-scheduler] Kích hoạt pipeline định kỳ / chạy bù cho ngày {today}", flush=True)
                     self.trigger(source="schedule")
             except Exception as exc:  # noqa: BLE001
                 print(f"[hm-scheduler] {exc}", flush=True)

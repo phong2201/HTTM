@@ -1,0 +1,112 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [
+    {
+      "id": "el_vi_1",
+      "type": "rectangle",
+      "x": 40,
+      "y": 50,
+      "width": 1440,
+      "height": 180,
+      "strokeColor": "#1971c2",
+      "backgroundColor": "#e7f5ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0.9,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "id": "el_vi_2",
+      "type": "text",
+      "x": 65,
+      "y": 64,
+      "text": "TẦNG 1: TRÌNH DIỄN GIAO DIỆN (REACT 18 SINGLE-PAGE APPLICATION)",
+      "fontSize": 15,
+      "strokeColor": "#1971c2"
+    },
+    {
+      "id": "el_vi_3",
+      "type": "rectangle",
+      "x": 40,
+      "y": 290,
+      "width": 1440,
+      "height": 180,
+      "strokeColor": "#f76707",
+      "backgroundColor": "#fff4e6",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0.9,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "id": "el_vi_4",
+      "type": "text",
+      "x": 65,
+      "y": 304,
+      "text": "TẦNG 2: CỔNG GIAO TIẾP & ĐIỀU PHỐI API (FASTAPI ASYNC GATEWAY)",
+      "fontSize": 15,
+      "strokeColor": "#f76707"
+    },
+    {
+      "id": "el_vi_5",
+      "type": "rectangle",
+      "x": 40,
+      "y": 530,
+      "width": 1440,
+      "height": 190,
+      "strokeColor": "#2f9e44",
+      "backgroundColor": "#ebfbee",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0.9,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "id": "el_vi_6",
+      "type": "text",
+      "x": 65,
+      "y": 544,
+      "text": "TẦNG 3: ĐỘNG CƠ TRÍ TUỆ NHÂN TẠO & TÁI XẾP HẠNG MÔ HÌNH (RANDOM FOREST)",
+      "fontSize": 15,
+      "strokeColor": "#2f9e44"
+    },
+    {
+      "id": "el_vi_7",
+      "type": "rectangle",
+      "x": 40,
+      "y": 780,
+      "width": 1440,
+      "height": 180,
+      "strokeColor": "#7950f2",
+      "backgroundColor": "#f3f0ff",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 0.9,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "id": "el_vi_8",
+      "type": "text",
+      "x": 65,
+      "y": 794,
+      "text": "TẦNG 4: LƯU TRỮ & DỮ LIỆU CHUẨN BENCHMARK THỰC TẾ (SQLITE & KAGGLE H&M)",
+      "fontSize": 15,
+      "strokeColor": "#7950f2"
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#fdfbf7",
+    "gridSize": null
+  },
+  "files": {}
+}

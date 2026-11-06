@@ -254,17 +254,6 @@ class APIService {
     return payload as T;
   }
 
-  decodeToken(token: string): Partial<UserData> {
-    try {
-      const payload = token.split('.')[1];
-      const normalized = payload.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(payload.length / 4) * 4, '=');
-      const decoded = JSON.parse(atob(normalized));
-      return { id: decoded.sub };
-    } catch {
-      return {};
-    }
-  }
-
   async login(username: string, password: string): Promise<LoginResponse> {
     const formData = new URLSearchParams();
     formData.append('username', username);
