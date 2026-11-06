@@ -1,0 +1,27 @@
+\section{Limitations, Security Governance, and Future Extensions}
+
+\subsection{Architectural Limitations}
+While HUB establishes an enterprise-grade standard for personalized fashion recommendation, several technical boundaries warrant explicit documentation:
+\begin{enumerate}
+    \item \textbf{Offline Pointwise Random Forest Constraint:} Tree ensembles optimized via scikit-learn execute over CPU cores and require periodic batch retraining rather than incremental stochastic gradient updates.
+    \item \textbf{Static Kaggle Benchmark Boundary:} The underlying H\&M dataset concludes on September 22, 2020. Simulated current-day transactions are temporally mapped to the dataset's tail to ensure feature compatibility without historical distortion.
+    \item \textbf{Heuristic Retrieval Bottleneck:} Although Stage 1 achieves $79.43\%$ recall across 100 candidates, customers whose tastes deviate entirely from previous purchases or cohort trends may experience candidate omissions.
+\end{enumerate}
+
+\subsection{Security Governance and Threat Mitigation}
+HUB adheres to rigorous software security standards:
+\begin{itemize}
+    \item \textbf{Cryptographic Password Hashing:} Passwords are encrypted using bcrypt with an adaptive work factor ($12$ rounds), rendering rainbow-table attacks unfeasible.
+    \item \textbf{Stateless Token Authorization:} Stateless JSON Web Tokens (JWT) signed with HMAC-SHA256 enforce tamper-proof session persistence with explicit expiration lifespans.
+    \item \textbf{Strict Input Sanitization \& SQL Injection Immunity:} All database interactions utilize parameterized SQLAlchemy queries and Pydantic strict typing, eliminating raw string concatenations and SQL injection vulnerabilities.
+    \item \textbf{Role-Based Endpoint Protection:} Backend route decorators intercept incoming HTTP requests, validating user claims before executing privileged administrative or data science operations.
+\end{itemize}
+
+\subsection{Roadmap for Future Research and Enhancements}
+Future development directions include:
+\begin{enumerate}
+    \item \textbf{Two-Tower Deep Retrieval (DSSM):} Replacing heuristic Stage 1 retrieval with dual deep neural network embeddings (User Tower and Item Tower) optimized via approximate nearest neighbor search (FAISS / HNSW) to achieve sub-millisecond retrieval over millions of catalog items.
+    \item \textbf{Graph Neural Network (GNN) Collaborative Filtering:} Constructing bipartite User-Item and Item-Item graph convolutional networks (e.g., LightGCN, PinSage) to propagate higher-order structural affinities across sparse cold-start profiles.
+    \item \textbf{Contextual Multi-Armed Bandits (MAB):} Integrating LinUCB or Thompson Sampling exploration engines to dynamically balance exploitation of verified user tastes with the active discovery of novel seasonal collections.
+    \item \textbf{Multi-Modal Visual Embeddings:} Incorporating pre-trained vision transformers (e.g., CLIP, ViT) to extract visual texture and aesthetic similarity vectors directly from product imagery.
+\end{enumerate}

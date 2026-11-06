@@ -1,0 +1,211 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{a4wide,amssymb,epsfig,latexsym,multicol,array,hhline,fancyhdr}
+\usepackage{tikz}
+\usepackage{tikzpagenodes}
+\usetikzlibrary{calc}
+\usepackage{indentfirst}
+%\usepackage{minted} % Uncomment only if compiling with -shell-escape
+\usepackage{colortbl}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel} 
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{amsmath}
+\usepackage{lastpage}
+\usepackage[lined,boxed,commentsnumbered]{algorithm2e}
+\usepackage{enumerate}
+\usepackage{listings}
+\usepackage{graphicx}
+\graphicspath{{images/}{./}}
+\usepackage{tcolorbox}
+\usepackage{tabularx, caption}
+\usepackage{multirow}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{placeins}
+\usetikzlibrary{shapes, arrows, positioning}
+\usetikzlibrary{arrows,snakes,backgrounds}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{float}
+\usepackage[none]{hyphenat}
+\usepackage{microtype}
+
+% --- Cấu hình Hyperref ---
+\hypersetup{urlcolor=blue,linkcolor=black,citecolor=black,colorlinks=true} 
+
+% --- Khoảng cách dòng ---
+\setstretch{1.4} 
+\tolerance=1000
+\hyphenpenalty=500
+
+% --- Định nghĩa các môi trường toán học ---
+\newtheorem{theorem}{{\bf Theorem}}
+\newtheorem{property}{{\bf Property}}
+\newtheorem{proposition}{{\bf Proposition}}
+\newtheorem{corollary}[proposition]{{\bf Corollary}}
+\newtheorem{lemma}[proposition]{{\bf Lemma}}
+
+% --- Header và Footer ---
+\setlength{\headheight}{40pt}
+\pagestyle{fancy}
+\fancyhead{} 
+\fancyhead[L]{
+ \begin{tabular}{rl}
+    \begin{picture}(25,15)(0,0)
+    % Lưu ý: Đảm bảo đường dẫn ảnh đúng (images/hcmut.png hoặc hcmut.png)
+    \put(0,-8){\includegraphics[width=8mm, height=8mm]{hcmut.png}}
+   \end{picture}&
+	\begin{tabular}{l}
+		\textbf{\bf \ttfamily Ho Chi Minh City University of Technology}\\
+		\textbf{\bf \ttfamily Faculty of Computer Science and Engineering}
+	\end{tabular} 	
+ \end{tabular}
+}
+\fancyhead[R]{
+	\begin{tabular}{l}
+		\tiny \bf \\
+		\tiny \bf 
+	\end{tabular}  }
+\fancyfoot{} 
+\fancyfoot[L]{\scriptsize \ttfamily Intelligent Systems (CO5119) - Academic Year 2025-2026}
+\fancyfoot[R]{\scriptsize \ttfamily Page {\thepage}/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\footrulewidth}{0.3pt}
+
+% --- Custom Subsubsubsection ---
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{3}
+\makeatletter
+\newcounter {subsubsubsection}[subsubsection]
+\renewcommand\thesubsubsubsection{\thesubsubsection .\@alph\c@subsubsubsection}
+\newcommand\subsubsubsection{\@startsection{subsubsubsection}{4}{\z@}%
+                                     {-3.25ex\@plus -1ex \@minus -.2ex}%
+                                     {1.5ex \@plus .2ex}%
+                                     {\normalfont\normalsize\bfseries}}
+\newcommand*\l@subsubsubsection{\@dottedtocline{3}{10.0em}{4.1em}}
+\makeatother
+
+% --- Cấu hình Code Listing ---
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{gray!10},
+    commentstyle=\color{green!50!black},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{gray},
+    stringstyle=\color{orange},
+    basicstyle=\ttfamily\scriptsize,
+    breakatwhitespace=false,
+    breaklines=true,
+    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showstringspaces=false,
+    tabsize=2,
+    frame=single,
+    columns=fullflexible
+}
+\lstset{style=mystyle}
+
+\newcommand\HRule{\rule{\textwidth}{1pt}}
+
+\begin{document}
+
+% --- TRANG BÌA ---
+\begin{titlepage}
+    \centering
+\begin{tikzpicture}[overlay,remember picture]
+    \draw [line width=1mm,decorate,decoration={}]
+        ($ (current page.north west) + (1.5cm,-1.5cm) $)
+        rectangle
+        ($ (current page.south east) + (-1.5cm,1.5cm) $);
+     \draw [line width=0.4mm,decorate,decoration={}]
+        ($ (current page.north west) + (1.7cm,-1.7cm) $)
+        rectangle
+        ($ (current page.south east) + (-1.7cm,1.7cm) $);
+\end{tikzpicture}
+
+    \begin{spacing}{1.25}
+        {\scshape VIETNAM NATIONAL UNIVERSITY - HO CHI MINH CITY}\\
+        {\scshape HO CHI MINH CITY UNIVERSITY OF TECHNOLOGY}\\
+        \textbf{\rmfamily FACULTY OF COMPUTER SCIENCE AND ENGINEERING}
+    \end{spacing}
+    \begin{center}
+        {\includegraphics[width=35mm, height=35mm]{hcmut.png}}
+    \end{center}
+    \vspace{0.5cm}
+    {\LARGE \bfseries INTELLIGENT SYSTEMS (CO5119)}\\[0.4cm]
+{\LARGE \bfseries Capstone Project Report}\\
+\vspace{0.5cm}
+
+\HRule \\[0.5cm]
+{\Large \bfseries HUB: Two-Stage Intelligent Fashion Recommendation System with Real-Time In-Session Re-Ranking}\\[0.5cm]
+\HRule \\[1.2cm]
+
+\begin{center}
+\begin{spacing}{1.4}
+\begin{tabular}{rl}
+ \Large Advisor: & \Large PhD. Quan Thanh Tho \\
+ \Large Students: & \Large Tan Khanh Phong - 2352911 \\
+                  & \Large Nguyễn Tiến Minh - 2352520 \\
+                  & \Large Đào Duy Đạt - 2352223 \\
+\end{tabular}
+\end{spacing}
+\end{center}    
+    \vfill
+    % Bottom of the page
+    {\large \textit{Ho Chi Minh City, November 2026}}
+\end{titlepage}
+
+% --- MỤC LỤC ---
+\newpage
+\setcounter{tocdepth}{2}
+\tableofcontents
+\newpage
+
+\section*{Task Distribution}
+\addcontentsline{toc}{section}{Task Distribution}
+
+\begin{table}[H]
+\centering
+\setstretch{1.2}
+\begin{tabular}{|m{4.5cm}|m{8.5cm}|c|}
+\hline
+\rowcolor{gray!20} \textbf{Student Name \& ID} & \textbf{Assigned Tasks \& Technical Scope} & \textbf{Contribution} \\ \hline
+\textbf{Tan Khanh Phong} \newline (ID: 2352911) & 
+• Two-Stage ML Architecture design \& Random Forest Ranker \newline
+• Real-time in-session exponential decay re-ranking (Algorithm 2) \newline
+• MLOps pipeline, Degradation Safety Gate \& Video Demo & 100\% \\ \hline
+\textbf{Nguyễn Tiến Minh} \newline (ID: 2352520) & 
+• Backend FastAPI architecture, JWT security \& API endpoints \newline
+• Kaggle 31.78M transactions EDA analysis \& Data Pipelines & 100\% \\ \hline
+\textbf{Đào Duy Đạt} \newline (ID: 2352223) & 
+• React 18 SPA Frontend, TailwindCSS \& UI components \newline
+• Benchmark evaluation metrics, Radar chart \& Sliced error matrix & 100\% \\ \hline
+\end{tabular}
+\caption{Task Distribution and Member Contributions}
+\end{table}
+
+\newpage
+% --- NỘI DUNG BẮT ĐẦU TỪ ĐÂY ---
+
+% --- Sections Integration ---
+\input{sections/Introduction/introduction}
+\input{sections/Introduction/architecture}
+\input{sections/Introduction/feature_design}
+\input{sections/Introduction/feature_ana}
+\input{sections/Introduction/Model_formulation}
+\input{sections/Introduction/data_evaluation}
+\input{sections/Introduction/ai_integration}
+\input{sections/Introduction/system_implementation}
+\input{sections/Introduction/future_extensions}
+% \newpage
+\input{sections/Conclusion/conclusion}
+\newpage
+\bibliographystyle{plain} % Thêm dòng này
+\nocite{*}
+\bibliography{references}  % Bỏ đuôi .bib đi
+
+\end{document}

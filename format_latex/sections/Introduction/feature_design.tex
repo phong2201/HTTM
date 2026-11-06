@@ -1,0 +1,82 @@
+\section{14 Handcrafted Feature Engineering Matrix}
+
+\subsection{Feature Space Decomposition}
+To bridge the semantic gap between high-level customer fashion intent and low-level item catalogue attributes, HUB constructs a dense 14-dimensional handcrafted feature representation for each candidate pair $(u, i)$ consisting of customer $u \in U$ and candidate article $i \in I$. The feature vector $\mathbf{x}_{u,i} \in \mathbb{R}^{14}$ is partitioned into three orthogonal behavioral subspaces:
+\begin{equation}
+    \mathbf{x}_{u,i} = \big[ \mathbf{x}_{\text{user}}(u) \;\Vert\; \mathbf{x}_{\text{item}}(i) \;\Vert\; \mathbf{x}_{\text{interaction}}(u, i) \big]
+\end{equation}
+where $\Vert$ denotes vector concatenation.
+
+\subsection{Formal Mathematical Specifications}
+
+\subsubsection{Customer Behavioral Subspace $\mathbf{x}_{\text{user}}(u) \in \mathbb{R}^4$}
+\begin{enumerate}
+    \item \textbf{Customer Age ($f_1$):} Chronological age of the customer normalized by cohort standard deviation:
+    \begin{equation}
+        f_1(u) = \frac{\text{Age}(u) - \mu_{\text{age}}}{\sigma_{\text{age}}}, \quad \text{where } \mu_{\text{age}} = 36.3, \; \sigma_{\text{age}} = 14.2
+    \end{equation}
+    \item \textbf{Club Membership Status ($f_2$):} Binary indicator representing customer active club enrollment status:
+    \begin{equation}
+        f_2(u) = \mathbb{I}(\text{club\_member\_status} = \text{"ACTIVE"}) \in \{0, 1\}
+    \end{equation}
+    \item \textbf{Historical Activity Frequency ($f_3$):} Log-transformed count of cumulative historical transactions completed within the observation window:
+    \begin{equation}
+        f_3(u) = \log_{10}\big(1 + |\{(u, i', t) \in \mathcal{D}_{\text{train}}\}|\big)
+    \end{equation}
+    \item \textbf{Mean Historical Basket Price ($f_4$):} Normalized mean expenditure across historical purchases:
+    \begin{equation}
+        f_4(u) = \frac{1}{|\mathcal{D}_u|} \sum_{(u, i', t) \in \mathcal{D}_u} \text{Price}(i')
+    \end{equation}
+\end{enumerate}
+
+\subsubsection{Item Attributive Subspace $\mathbf{x}_{\text{item}}(i) \in \mathbb{R}^5$}
+\begin{enumerate}
+    \setcounter{enumi}{4}
+    \item \textbf{Normalized Price Percentile ($f_5$):} Unit interval quantile rank of the article's price relative to its product group:
+    \begin{equation}
+        f_5(i) = \text{QuantileRank}(\text{Price}(i) \mid \text{group}(i)) \in [0.0, 1.0]
+    \end{equation}
+    \item \textbf{Weekly Sales Velocity ($f_6$):} Normalized volume of purchases recorded across the preceding 7-day sliding window:
+    \begin{equation}
+        f_6(i) = \sum_{(u', i, t) \in \mathcal{D}_{\text{train}}} \mathbb{I}(T_{\text{cutoff}} - 7 \le t < T_{\text{cutoff}})
+    \end{equation}
+    \item \textbf{Department Market Share ($f_7$):} Proportion of total store sales captured by article $i$'s department:
+    \begin{equation}
+        f_7(i) = \frac{\text{Sales}(\text{dept}(i))}{\sum_{d \in \text{Depts}} \text{Sales}(d)}
+    \end{equation}
+    \item \textbf{Index Group Encoding ($f_8$):} Integer categorical mapping corresponding to the 5 major H\&M divisions (\textit{Ladieswear}, \textit{Menswear}, \textit{Divided}, \textit{Baby/Children}, \textit{Sport}).
+    \item \textbf{Product Group Categorical ID ($f_9$):} High-level garment hierarchy identifier covering 11 macro categories (e.g., Garment Upper body, Garment Lower body).
+\end{enumerate}
+
+\subsubsection{Customer-Item Interaction Subspace $\mathbf{x}_{\text{interaction}}(u, i) \in \mathbb{R}^5$}
+\begin{enumerate}
+    \setcounter{enumi}{9}
+    \item \textbf{Historical Repurchase Count ($f_{10}$):} Frequency of prior purchases of exact article $i$ by user $u$:
+    \begin{equation}
+        f_{10}(u, i) = \sum_{(u', i', t) \in \mathcal{D}_u} \mathbb{I}(i' = i)
+    \end{equation}
+    \item \textbf{Exponential Recency Decay Weight ($f_{11}$):} Continuous decay discounting historical interactions with elapsed time $\Delta t = T_{\text{cutoff}} - t$:
+    \begin{equation}
+        f_{11}(u, i) = \max_{(u, i, t) \in \mathcal{D}_u} \exp\big(-\lambda \cdot (T_{\text{cutoff}} - t)\big), \quad \lambda = \frac{\ln(2)}{28.0}
+    \end{equation}
+    where a half-life of 28 days aligns with fashion repurchasing cycles.
+    \item \textbf{Alternative Color / Same Product Code Affinity ($f_{12}$):} Indicator whether user $u$ previously purchased a variant of the same base design:
+    \begin{equation}
+        f_{12}(u, i) = \mathbb{I}\big(\exists (u, j, t) \in \mathcal{D}_u : \text{code}(j) = \text{code}(i) \land j \neq i\big)
+    \end{equation}
+    \item \textbf{Co-Purchase Association Score ($f_{13}$):} Jaccard similarity derived from the global item co-occurrence graph $\mathcal{G}_{\text{co}}$:
+    \begin{equation}
+        f_{13}(u, i) = \max_{j \in \mathcal{D}_u} \frac{|\mathcal{U}_i \cap \mathcal{U}_j|}{|\mathcal{U}_i \cup \mathcal{U}_j|}
+    \end{equation}
+    \item \textbf{Department Preference Alignment ($f_{14}$):} Fraction of historical purchases matching article $i$'s index group:
+    \begin{equation}
+        f_{14}(u, i) = \frac{|\{(u, i', t) \in \mathcal{D}_u : \text{group}(i') = \text{group}(i)\}|}{\max(1, |\mathcal{D}_u|)}
+    \end{equation}
+\end{enumerate}
+
+\subsection{Controlled Negative Subsampling (1:5 Ratio)}
+In implicit feedback recommender tasks, observed interactions constitute strictly positive signals ($y=1$), whereas unobserved items represent a mixture of true negatives and unexposed items. To avoid training degradation caused by overwhelming class imbalance (where the negative space exceeds $10^5:1$), HUB executes controlled negative subsampling:
+\begin{equation}
+    \mathcal{T}_u = \big\{(u, i, 1) \mid i \in Y_u \cap C_u\big\} \;\cup\; \big\{(u, j, 0) \mid j \sim \text{Uniform}(C_u \setminus Y_u), \; |\mathcal{T}_u^{-}| = \min(|C_u \setminus Y_u|, 5 \cdot |\mathcal{T}_u^{+}|)\big\}
+\end{equation}
+This strategy yields a well-calibrated training dataset of exactly \textbf{390,166 verified instances}, preserving class boundary separability while enabling bounded memory consumption during Random Forest training.

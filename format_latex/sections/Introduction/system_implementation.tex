@@ -1,0 +1,76 @@
+\section{Full-Stack System Implementation and User Experience}
+
+\subsection{Buyer User Experience Flow}
+The Buyer interface is designed for high aesthetic polish and frictionless conversion:
+\begin{enumerate}
+    \item \textbf{Personalized Recommendation Showcase:} Upon authentication, the homepage presents the Top-12 personalized fashion recommendations computed by the Random Forest ranker, alongside real-time bestseller heuristics and category exploration carousels (Figure \ref{fig:ui_buyer_home}).
+    \item \textbf{Catalogue Browser (105,100 Articles):} Supports multi-faceted filtering across index divisions, product groups, colors, and price ordering with instant auto-completion.
+    \item \textbf{Product Detail \& Interactive Feedback:} Displays 14 detailed garment attributes, user review stars, and interactive action buttons: \textit{Add to Wishlist}, \textit{Add Feedback}, and \textit{Add to Cart}.
+    \item \textbf{Cart Drawer \& Checkout Flow:} A responsive slide-over drawer calculates subtotals in real time, routing to a complete checkout form supporting 63 Vietnamese provinces and cash-on-delivery (COD) processing.
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{00_login_page.png}
+        \caption{Cryptographic RBAC Role Selector Login}
+        \label{fig:ui_login}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{05_buyer_homepage_recommendations.png}
+        \caption{Buyer Homepage with Top-12 Recommendations}
+        \label{fig:ui_buyer_home}
+    \end{minipage}
+\end{figure}
+
+\subsection{Data Science Studio}
+The Data Science portal empowers machine learning practitioners with comprehensive transparency and control over production models:
+\begin{enumerate}
+    \item \textbf{EDA Dashboard:} Renders interactive charts illustrating transaction velocity, price distributions, and customer age demographics (Figure \ref{fig:ui_ds_eda}).
+    \item \textbf{Model Benchmark Evaluation:} Visualizes a 6-axis Radar canvas measuring MAP@12, NDCG@12, Recall@12, Precision@12, and coverage alongside feature importance rankings (Figure \ref{fig:ui_ds_model}).
+    \item \textbf{Sliced Error Matrix:} Provides cohort breakdown diagnostics contrasting Active versus Casual cold-start shoppers.
+    \item \textbf{Retraining Console:} Exposes hyperparameter controls (number of trees, max depth, sampling ratios), manual "Train AI" triggers, and real-time execution progress tracking (Figure \ref{fig:ui_ds_schedule}).
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{01_ds_eda_page.png}
+        \caption{Interactive EDA Analytics Dashboard}
+        \label{fig:ui_ds_eda}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{02_ds_model_metrics.png}
+        \caption{Model Metric Evaluation \& Radar Canvas}
+        \label{fig:ui_ds_model}
+    \end{minipage}
+\end{figure}
+
+\subsection{Administrator Control Center}
+The System Administrator interface centralizes operational governance:
+\begin{enumerate}
+    \item \textbf{User Management Tab:} Lists all registered accounts with role assignment toggles (Buyer, Data Scientist, Admin).
+    \item \textbf{Catalogue Management Tab:} Enables updating unit pricing, modifying stock quantities, and toggling product visibility.
+    \item \textbf{Order Lifecycle Tab:} Tracks all customer purchases with full status transition capabilities (\textit{Pending} $\rightarrow$ \textit{Processing} $\rightarrow$ \textit{Delivered} / \textit{Cancelled}).
+    \item \textbf{Executive Revenue Dashboard:} Provides daily, monthly, and yearly revenue KPI cards, 12-month revenue trend bar charts, and top-5 bestselling inventory rankings (Figure \ref{fig:ui_admin_dashboard}).
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04_ds_training_schedule.png}
+        \caption{MLOps Schedule \& Degradation Gate Console}
+        \label{fig:ui_ds_schedule}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{07_admin_dashboard.png}
+        \caption{Executive Revenue Analytics Dashboard}
+        \label{fig:ui_admin_dashboard}
+    \end{minipage}
+\end{figure}

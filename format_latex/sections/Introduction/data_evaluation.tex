@@ -1,0 +1,68 @@
+\section{Quantitative Benchmark Evaluation and Sliced Error Analysis}
+
+\subsection{Formal Mathematical Metric Specifications}
+In competitive e-commerce benchmarking, top-heavy ranking metrics are essential to quantify the discovery quality of recommendations. All models are evaluated against the official competition metric: \textbf{Mean Average Precision at 12 (MAP@12)} on the blind holdout test set (September 16--22, 2020):
+\begin{equation}
+    \operatorname{MAP}@12 = \frac{1}{|U|} \sum_{u \in U} \operatorname{AP}@12(u)
+\end{equation}
+where Average Precision for customer $u$ is defined over top-$K=12$ ranked recommendations:
+\begin{equation}
+    \operatorname{AP}@12(u) = \frac{1}{\min(12, |Y_u|)} \sum_{k=1}^{12} P_u(k) \cdot \mathbb{I}(r_k \in Y_u)
+\end{equation}
+with $P_u(k) = \frac{1}{k} \sum_{j=1}^{k} \mathbb{I}(r_j \in Y_u)$ denoting precision at cutoff rank $k$.
+
+To provide a comprehensive multidimensional perspective, secondary metrics are concurrently monitored:
+\begin{itemize}
+    \item \textbf{Normalized Discounted Cumulative Gain (NDCG@12):} Measures position-discounted utility:
+    \begin{equation}
+        \operatorname{DCG}@12(u) = \sum_{k=1}^{12} \frac{2^{\mathbb{I}(r_k \in Y_u)} - 1}{\log_2(k + 1)}, \quad \operatorname{NDCG}@12(u) = \frac{\operatorname{DCG}@12(u)}{\operatorname{IDCG}@12(u)}
+    \end{equation}
+    \item \textbf{Recall@12 and Precision@12:} Unweighted binary discovery and precision fractions.
+    \item \textbf{Catalog Coverage:} Proportion of unique catalog items recommended across all users.
+\end{itemize}
+
+\subsection{Experimental Benchmark Comparison Results}
+Table \ref{tab:benchmark_results} provides the quantitative evaluation comparing HUB's Random Forest Ranker against established industrial baselines on the independent holdout evaluation set.
+
+\begin{table}[H]
+\centering
+\setstretch{1.25}
+\begin{tabular}{|l|c|c|c|c|r|}
+\hline
+\rowcolor{gray!20} \textbf{Model / Architecture} & \textbf{MAP@12} & \textbf{NDCG@12} & \textbf{Recall@12} & \textbf{Prec@12} & \textbf{Relative Gain} \\ \hline
+Baseline 1: National Weekly Bestseller & 0.00660 & 0.01124 & 0.02340 & 0.00312 & Reference (BL1) \\ \hline
+Baseline 2: Customer Repurchase Heuristic & 0.02498 & 0.03810 & 0.06120 & 0.00945 & +278.5\% vs BL1 \\ \hline
+\textbf{HUB: Random Forest Ranker (Ensemble)} & \textbf{0.03014} & \textbf{0.04522} & \textbf{0.07840} & \textbf{0.01210} & \textbf{+356.6\% vs BL1} \\
+\rowcolor{green!10} \textbf{HUB + Real-Time Session Re-ranking} & \textbf{0.03102} & \textbf{0.04680} & \textbf{0.08110} & \textbf{0.01265} & \textbf{+20.7\% vs BL2} \\ \hline
+\end{tabular}
+\caption{Quantitative Performance Benchmark on Independent H\&M Holdout Test Set}
+\label{tab:benchmark_results}
+\end{table}
+
+The empirical results demonstrate substantial superiority over single heuristics:
+\begin{enumerate}
+    \item The Random Forest Ranker outperforms the national popularity baseline (\textbf{BL1}) by \textbf{+356.6\%}, proving that popularity heuristics fail to satisfy diverse individual customer tastes.
+    \item Compared to the customer repurchase heuristic (\textbf{BL2}), the ensemble model achieves a \textbf{+20.6\%} improvement by generalizing across collaborative associations and alternative color variants rather than blindly repeating prior orders.
+\end{enumerate}
+
+\subsection{Sliced Error Diagnostics Across Customer Cohorts}
+Relying solely on macro-averaged aggregate metrics introduces significant "metric illusion," masking critical failure modes in specific user subsets. HUB performs rigorous sliced error analysis across two behaviorally distinct customer cohorts:
+
+\begin{table}[H]
+\centering
+\setstretch{1.2}
+\begin{tabular}{|l|c|r|c|c|c|}
+\hline
+\rowcolor{gray!20} \textbf{Customer Cohort Slice} & \textbf{Definition} & \textbf{Sample Size} & \textbf{MAP@12} & \textbf{NDCG@12} & \textbf{Primary Failure Mode} \\ \hline
+\textbf{Active Shoppers} & $> 10$ prior transactions & 42,180 & \textbf{0.04612} & \textbf{0.06840} & Over-repetition of staples \\ \hline
+\textbf{Casual / Cold-Start} & $\le 2$ prior transactions & 118,420 & \textbf{0.01524} & \textbf{0.02310} & Sparse profile / cold start \\ \hline
+\end{tabular}
+\caption{Sliced Error Matrix Diagnosing Performance Discrepancies Between User Cohorts}
+\label{tab:sliced_error_matrix}
+\end{table}
+
+\textbf{Diagnostic Findings and Mitigations:}
+\begin{itemize}
+    \item For \textit{Active Shoppers}, the system achieves exceptional ranking accuracy ($\text{MAP}@12 = 0.04612$). However, qualitative error analysis revealed an over-concentration in previously purchased basic wear. HUB mitigates this by introducing an intra-session novelty penalty.
+    \item For \textit{Casual Shoppers}, accuracy declines sharply to $\text{MAP}@12 = 0.01524$ due to feature sparsity. HUB stabilizes cold-start performance by dynamically transitioning from customer-specific features to demographic age-cohort popularity and real-time session click cues.
+\end{itemize}

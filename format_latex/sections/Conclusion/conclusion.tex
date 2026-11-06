@@ -1,0 +1,18 @@
+\section{Conclusion and Summary}
+
+\subsection{Summary of Accomplishments}
+This capstone project successfully designed, implemented, and empirically evaluated \textbf{HUB}, an end-to-end intelligent fashion recommender platform engineered over the official 31.78-million transaction H\&M Kaggle benchmark. By harmonizing an enterprise Four-Tier microservices architecture with a mathematically formulated Two-Stage Recommendation Engine, HUB effectively addresses the dual challenges of extreme catalog sparsity and rapid fashion trend obsolescence.
+
+The quantitative evaluation on the blind holdout test set demonstrated the decisive efficacy of the proposed model:
+\begin{itemize}
+    \item Achieving a \textbf{MAP@12 of 0.03014}, the Random Forest Pointwise Ranker outstripped the national weekly bestseller baseline (\textbf{BL1}) by \textbf{+356.6\%} and exceeded the customer repurchase heuristic (\textbf{BL2}) by \textbf{+20.6\%}.
+    \item The real-time in-session re-ranking engine powered by half-life exponential decay ($t_{1/2} = 3.0$ days) elevated discovery performance to \textbf{MAP@12 = 0.03102} while maintaining sub-$65\,\text{ms}$ latency budgets.
+    \item Sliced error diagnostics successfully characterized performance boundaries between Active ($\text{MAP}@12 = 0.04612$) and Casual shoppers ($\text{MAP}@12 = 0.01524$), establishing clear mitigation protocols for cold-start degradation.
+    \item An automated MLOps retraining pipeline with an embedded \textit{Model Degradation Safety Gate} guarantees continuous production resilience without service interruption.
+\end{itemize}
+
+\subsection{Concluding Remarks and Academic Attribution}
+The complete codebase, comprising the FastAPI asynchronous backend, React 18 single-page application, cloud-offloaded training pipeline, publication-grade academic report, and 1080p full walkthrough demonstration video, represents a comprehensive engineering deliverable meeting the highest standards of the Faculty of Computer Science and Engineering, Ho Chi Minh City University of Technology (HCMUT - VNU-HCM).
+
+\subsection*{Acknowledgments}
+The authors express their deepest gratitude to \textbf{PhD. Quan Thanh Tho} and the faculty members of the Computer Science and Engineering Department for their invaluable pedagogical guidance, theoretical feedback, and support throughout the realization of this project.

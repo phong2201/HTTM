@@ -1,0 +1,46 @@
+\section{Introduction}
+
+\subsection{Problem Background and Motivation}
+In modern e-commerce ecosystems, particularly within high-velocity fashion retail, customers are routinely overwhelmed by catalogues comprising tens or hundreds of thousands of distinct items. Traditional search mechanisms rely heavily on explicit customer queries; however, an estimated 70\% of browsing sessions begin without a predefined intent. Consequently, personalized recommender systems have emerged as mission-critical infrastructure to drive engagement, conversion rates, and gross merchandise value (GMV).
+
+Unlike consumer electronics or media streaming where consumption patterns exhibit multi-month stability, the apparel domain introduces unique algorithmic challenges:
+\begin{enumerate}[(i)]
+    \item \textbf{Rapid Seasonal Dynamics and Style Drift:} Fashion trends fluctuate rapidly across temporal seasons, rendering static historical purchase models obsolete within a matter of weeks.
+    \item \textbf{Extreme Matrix Sparsity:} In enterprise-scale catalogues, each individual user interacts with only a negligible fraction ($< 0.01\%$) of the complete product inventory.
+    \item \textbf{Intra-Session Intent Shift:} Customer affinity evolves dynamically within a single session as they browse complementary garments (e.g., transitioning from shirts to formal blazers).
+\end{enumerate}
+
+To overcome these barriers, the \textbf{HUB} platform presents an end-to-end intelligent fashion recommendation system deployed across a robust Four-Tier architecture. The core algorithm formalizes a \textit{Two-Stage Recommendation Pipeline} consisting of a high-recall multi-heuristic retrieval layer followed by a pointwise \textbf{Random Forest Ranker} (200 decision trees) and real-time exponential half-life session re-ranking.
+
+\subsection{Scope and Target Stakeholders}
+The system governs interactions across three primary actors enforced by cryptographic Role-Based Access Control (RBAC):
+\begin{itemize}
+    \item \textbf{Buyer (End Customer):} Receives personalized Top-12 fashion recommendations, navigates multi-faceted category catalogues, bookmark items to wishlist, submits star ratings, and completes transactions with seamless cart management.
+    \item \textbf{Data Scientist (Machine Learning Engineer):} Inspects real-world exploratory data analysis (EDA) distributions, evaluates quantitative metric benchmarks (MAP@12, NDCG@12, Recall@12), diagnoses sliced error matrices across user cohorts, configures MLOps retraining schedules, and manages model deployment guardrails.
+    \item \textbf{System Administrator (Business Executive):} Monitors high-level commercial KPIs, revenue trajectory charts, inventory stock levels, order status lifecycles, and user account permissions.
+\end{itemize}
+
+\subsection{Real-World Benchmark Dataset: H\&M Kaggle Competition}
+To ensure rigorous real-world validity and absolute freedom from synthetic data artifacts, HUB is trained, validated, and evaluated on the official \textit{H\&M Personalized Fashion Recommendations} benchmark dataset \cite{hmkaggle2022}:
+\begin{table}[H]
+\centering
+\setstretch{1.2}
+\begin{tabular}{|l|r|l|}
+\hline
+\rowcolor{gray!20} \textbf{Dataset Component} & \textbf{Entity Count} & \textbf{Description \& Salient Attributes} \\ \hline
+Transactions (\texttt{transactions\_train.csv}) & 31,788,324 & 2-year purchase logs (2018-09-20 to 2020-09-22) \\ \hline
+Articles (\texttt{articles.csv}) & 105,542 & 14 attributes: product type, group, color, department \\ \hline
+Customers (\texttt{customers.csv}) & 1,371,980 & Anonymized profiles, age cohorts, club membership \\ \hline
+\end{tabular}
+\caption{Quantitative Summary of the Benchmark Kaggle Fashion Dataset}
+\label{tab:dataset_summary}
+\end{table}
+
+\subsection{Key Contributions of the System}
+The primary contributions of this capstone project are summarized as follows:
+\begin{enumerate}
+    \item \textbf{Leakage-Free Two-Stage Recommendation Architecture:} Formulation of an enterprise two-stage pipeline reducing the search space from $105,100$ items to candidate subsets ($C=100$) and finally Top-12 ranked recommendations under a strict rolling temporal split.
+    \item \textbf{Machine Learning Ranking Formulation:} Deployment of an ensemble Random Forest pointwise ranker trained over 14 handcrafted customer, item, and interaction features with controlled negative subsampling (1:5 ratio).
+    \item \textbf{Real-Time In-Session Re-ranking with Exponential Decay:} Implementation of an asynchronous, in-memory re-ranking engine powered by half-life decay $w(e) = \omega(\tau_e) \cdot 2^{-\Delta t / 3.0}$, yielding immediate responsiveness to live session clicks and cart additions.
+    \item \textbf{Production-Grade MLOps \& Safety Guardrails:} Integration of an automated retraining scheduler with a \textit{Model Degradation Safety Gate} ensuring zero regression in MAP@12 against production baselines.
+\end{enumerate}
